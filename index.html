@@ -152,17 +152,20 @@ function fmt(id,type){
   else if(type==="italic") w="_"+sel+"_";
   else if(type==="center") w="[c]"+sel+"[/c]";
   ta.value=ta.value.substring(0,s)+w+ta.value.substring(e);
-  ta.focus();ta.setSelectionRange(s,s+w.length);
-  ta.scrollTop=ta.scrollTop;
+  const st=ta.scrollTop;
+  ta.focus();
+  ta.setSelectionRange(s+w.length,s+w.length);
+  requestAnimationFrame(()=>ta.scrollTop=st);
 }
 function fmtLine(id,prefix){
   const ta=document.getElementById(id);if(!ta)return;
-  const scrollTop=ta.scrollTop;
+  const st=ta.scrollTop;
   const pos=ta.selectionStart,before=ta.value.substring(0,pos),after=ta.value.substring(pos);
   const ins=(before.length>0&&!before.endsWith("\n")?"\n":"")+prefix;
   ta.value=before+ins+after;
-  ta.focus();ta.setSelectionRange(pos+ins.length,pos+ins.length);
-  ta.scrollTop=scrollTop;
+  ta.focus();
+  ta.setSelectionRange(pos+ins.length,pos+ins.length);
+  requestAnimationFrame(()=>ta.scrollTop=st);
 }
 
 auth.onAuthStateChanged(u=>{
@@ -360,22 +363,22 @@ function openSessModal(cat,eid,pid,id,date,notes,sem,obs,pun){
     <input id="m-date" type="date" value="${d}">
     <label class="lbl">Notas de la sesión * <span style="color:#bbb;font-size:11px">— selecciona texto y aplica formato</span></label>
     <div class="fmt-bar">
-      <button type="button" class="fmt-btn" onclick="fmt('m-notes','bold')"><b>N</b> Negrilla</button>
-      <button type="button" class="fmt-btn" onclick="fmt('m-notes','italic')"><i>K</i> Cursiva</button>
-      <button type="button" class="fmt-btn" onclick="fmt('m-notes','center')">⬛ Centrar</button>
-      <button type="button" class="fmt-btn" onclick="fmtLine('m-notes','• ')">• Lista</button>
-      <button type="button" class="fmt-btn" onclick="fmtLine('m-notes','→ ')">→ Punto clave</button>
-      <button type="button" class="fmt-btn" onclick="fmtLine('m-notes','✓ ')">✓ Logro</button>
+      <button type="button" class="fmt-btn" onmousedown="event.preventDefault();fmt('m-notes','bold')"><b>N</b> Negrilla</button>
+      <button type="button" class="fmt-btn" onmousedown="event.preventDefault();fmt('m-notes','italic')"><i>K</i> Cursiva</button>
+      <button type="button" class="fmt-btn" onmousedown="event.preventDefault();fmt('m-notes','center')">⬛ Centrar</button>
+      <button type="button" class="fmt-btn" onmousedown="event.preventDefault();fmtLine('m-notes','• ')">• Lista</button>
+      <button type="button" class="fmt-btn" onmousedown="event.preventDefault();fmtLine('m-notes','→ ')">→ Punto clave</button>
+      <button type="button" class="fmt-btn" onmousedown="event.preventDefault();fmtLine('m-notes','✓ ')">✓ Logro</button>
     </div>
     <textarea id="m-notes" style="min-height:160px" placeholder="Escribe aquí todo lo trabajado en la sesión…">${n}</textarea>
     <label class="lbl">Observaciones y próximos pasos</label>
     <div class="fmt-bar">
-      <button type="button" class="fmt-btn" onclick="fmt('m-obs','bold')"><b>N</b> Negrilla</button>
-      <button type="button" class="fmt-btn" onclick="fmt('m-obs','italic')"><i>K</i> Cursiva</button>
-      <button type="button" class="fmt-btn" onclick="fmt('m-obs','center')">⬛ Centrar</button>
-      <button type="button" class="fmt-btn" onclick="fmtLine('m-obs','• ')">• Lista</button>
-      <button type="button" class="fmt-btn" onclick="fmtLine('m-obs','→ ')">→ Punto clave</button>
-      <button type="button" class="fmt-btn" onclick="fmtLine('m-obs','✓ ')">✓ Logro</button>
+      <button type="button" class="fmt-btn" onmousedown="event.preventDefault();fmt('m-obs','bold')"><b>N</b> Negrilla</button>
+      <button type="button" class="fmt-btn" onmousedown="event.preventDefault();fmt('m-obs','italic')"><i>K</i> Cursiva</button>
+      <button type="button" class="fmt-btn" onmousedown="event.preventDefault();fmt('m-obs','center')">⬛ Centrar</button>
+      <button type="button" class="fmt-btn" onmousedown="event.preventDefault();fmtLine('m-obs','• ')">• Lista</button>
+      <button type="button" class="fmt-btn" onmousedown="event.preventDefault();fmtLine('m-obs','→ ')">→ Punto clave</button>
+      <button type="button" class="fmt-btn" onmousedown="event.preventDefault();fmtLine('m-obs','✓ ')">✓ Logro</button>
     </div>
     <textarea id="m-obs" style="min-height:100px" placeholder="Compromisos, recomendaciones, próximos pasos…">${o}</textarea>
     <label class="lbl">Puntuación de avance</label>
