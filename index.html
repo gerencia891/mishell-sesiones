@@ -316,17 +316,23 @@ async function delPerson(cat,eid,id){
 }
 
 // SESSION MODAL
-let _sem="verde",_mr=null;
-function openSessModal(cat,eid,pid,id="",date="",notes="",sem="verde"){
-  _sem=sem;
+let _sem="verde",_mr=null,_pun=0;
+function selPun(n){
+  _pun=n;
+  [1,2,3,4,5].forEach(i=>{const el=document.getElementById("star-"+i);if(el)el.style.color=i<=n?"#B8732A":"#ddd";});
+}
+function openSessModal(cat,eid,pid,id="",date="",notes="",sem="verde",obs="",pun=0){
+  _sem=sem;_pun=parseInt(pun)||0;
   showModal(`<h3 style="color:var(--brand);margin-bottom:16px">${id?"Editar":"Nueva"} sesión</h3>
     <label class="lbl">Fecha *</label><input id="m-date" type="date" value="${id?decodeURIComponent(date):''}">
-    <label class="lbl">Notas *</label>
-    <div style="display:flex;gap:8px;margin-bottom:8px">
-      <button class="btn btn-outline btn-sm" id="rec-btn" onclick="toggleRec()">🎙️ Grabar audio</button>
-      <span id="trans-lbl" style="font-size:12px;color:var(--brand);display:none">Transcribiendo…</span>
+    <label class="lbl">Notas de la sesión *</label>
+    <textarea id="m-notes" placeholder="Escribe aquí todo lo trabajado en la sesión…" style="min-height:140px">${id?decodeURIComponent(notes):''}</textarea>
+    <label class="lbl">Observaciones adicionales</label>
+    <textarea id="m-obs" placeholder="Compromisos, recomendaciones, próximos pasos…" style="min-height:90px">${id?decodeURIComponent(obs):''}</textarea>
+    <label class="lbl">Puntuación de avance (1-5)</label>
+    <div style="display:flex;gap:8px;margin-bottom:16px" id="stars-wrap">
+      ${[1,2,3,4,5].map(n=>`<div onclick="selPun(${n})" id="star-${n}" style="font-size:28px;cursor:pointer;color:${n<=_pun?'#B8732A':'#ddd'};transition:color .15s">★</div>`).join("")}
     </div>
-    <textarea id="m-notes" placeholder="Escribe las notas o graba el audio…">${id?decodeURIComponent(notes):''}</textarea>
     <label class="lbl">Semáforo de avance</label>
     <div style="display:flex;gap:10px;margin-bottom:16px">
       ${["verde","amarillo","rojo"].map(v=>{const s=si(v);return`<div class="sem-opt" id="so-${v}" style="${v===sem?"background:"+s.bg+";border-color:"+s.dot:""}" onclick="selSem('${v}')"><div style="width:14px;height:14px;border-radius:50%;background:${s.dot};margin:0 auto 4px"></div><div style="font-size:12px;font-weight:600;color:${s.color}">${s.label}</div></div>`;}).join("")}
@@ -357,10 +363,11 @@ async function toggleRec(){
 async function saveSess(cat,eid,pid,id){
   const date=document.getElementById("m-date").value;
   const notes=document.getElementById("m-notes").value.trim();
+  const obs=document.getElementById("m-obs").value.trim();
   if(!date||!notes)return;
   saving(true);
-  if(id) await sRef(cat,eid,pid).doc(id).update({date,notes,semaforo:_sem});
-  else await sRef(cat,eid,pid).add({date,notes,semaforo:_sem,report:"",createdAt:new Date()});
+  if(id) await sRef(cat,eid,pid).doc(id).update({date,notes,semaforo:_sem,report:obs,puntuacion:_pun});
+  else await sRef(cat,eid,pid).add({date,notes,semaforo:_sem,report:obs,puntuacion:_pun,createdAt:new Date()});
   saving(false);closeModal();toast(id?"Sesión actualizada":"Sesión registrada");render();
 }
 async function delSess(cat,eid,pid,id){
@@ -388,12 +395,75 @@ async function genReport(cat,eid,pid,sid,btn){
 // PRINT
 function doPrint(s){
   const inf=si(s.semaforo);
-  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Informe - ${s.pn||""}</title><style>body{font-family:Georgia,serif;max-width:820px;margin:0 auto;padding:40px;color:#2c2c2c;line-height:1.8}.hdr{text-align:center;border-bottom:2px solid #B8732A;padding-bottom:20px;margin-bottom:32px}.logo{color:#B8732A;font-size:32px;font-style:italic;margin:0}.psico{color:#8A5218;letter-spacing:4px;font-size:12px}.meta{background:#F5ECD9;border-radius:10px;padding:16px 24px;margin-bottom:28px;display:flex;gap:32px;flex-wrap:wrap}.mi label{font-size:11px;color:#8A5218;letter-spacing:2px;text-transform:uppercase;display:block}.mi span{font-size:15px;font-weight:600}.badge{background:${inf.bg};color:${inf.color};border-radius:20px;padding:3px 14px}.st{color:#B8732A;font-size:13px;letter-spacing:2px;text-transform:uppercase;margin:26px 0 6px;border-bottom:1px solid #F5ECD9;padding-bottom:5px}.notes{background:#fafaf8;border-left:3px solid #B8732A;padding:14px 18px;font-size:14px;white-space:pre-wrap}.rt{font-size:14px;white-space:pre-wrap;line-height:1.9}.footer{margin-top:48px;text-align:center;color:#aaa;font-size:12px;border-top:1px solid #eee;padding-top:16px}@media print{body{padding:20px}}</style></head><body>
-  <div class="hdr"><p class="logo">Mishell Fontalvo</p><p class="psico">PSICÓLOGA</p></div>
-  <div class="meta"><div class="mi"><label>Persona</label><span>${s.pn||""}</span></div><div class="mi"><label>Empresa</label><span>${s.en||""}</span></div><div class="mi"><label>Fecha</label><span>${s.date}</span></div><div class="mi"><label>Estado</label><span class="badge">${inf.label}</span></div></div>
-  <div class="st">Notas de la sesión</div><div class="notes">${s.notes}</div>
-  ${s.report?`<div class="st">Informe Profesional</div><div class="rt">${s.report}</div>`:""}
-  <div class="footer">Sistema de gestión · Mishell Fontalvo · Psicóloga</div></body></html>`;
+  const score=s.puntuacion||0;
+  const stars="★".repeat(score)+"☆".repeat(5-score);
+  const dotColor=inf.dot||inf.color;
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Informe - ${s.pn||""}</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Georgia,serif;background:#FDFAF5;color:#2c2c2c;line-height:1.8}
+    .page{max-width:860px;margin:0 auto;padding:48px 40px}
+    .header{text-align:center;margin-bottom:36px}
+    .logo{color:#B8732A;font-size:38px;font-style:italic;letter-spacing:1px}
+    .psico{color:#8A5218;letter-spacing:5px;font-size:11px;text-transform:uppercase;margin-top:4px}
+    .divider{width:80px;height:2px;background:#B8732A;margin:14px auto}
+    .meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+    .meta-box{background:#fff;border:1px solid #F0DFC0;border-radius:10px;padding:14px 16px;text-align:center}
+    .meta-box label{font-size:10px;color:#8A5218;letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:6px}
+    .meta-box span{font-size:15px;font-weight:600;color:#2c2c2c}
+    .sem-badge{display:inline-flex;align-items:center;gap:6px;background:${inf.bg};color:${inf.color};border-radius:20px;padding:4px 14px;font-size:13px;font-weight:600}
+    .sem-dot{width:10px;height:10px;border-radius:50%;background:${dotColor}}
+    .score-stars{color:#B8732A;font-size:20px;letter-spacing:2px}
+    .section{background:#fff;border:1px solid #F0DFC0;border-radius:12px;padding:22px 26px;margin-bottom:20px}
+    .section-title{color:#B8732A;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .section-title::after{content:'';flex:1;height:1px;background:#F0DFC0}
+    .notes-text{font-size:14px;color:#333;white-space:pre-wrap;line-height:1.9}
+    .progress-bar-bg{background:#F0DFC0;border-radius:20px;height:10px;margin-top:10px}
+    .progress-bar{height:100%;border-radius:20px;background:${dotColor};width:${score*20}%}
+    .progress-label{display:flex;justify-content:space-between;font-size:11px;color:#999;margin-top:4px}
+    .footer{margin-top:40px;text-align:center;padding-top:20px;border-top:1px solid #F0DFC0}
+    .footer-logo{color:#B8732A;font-size:18px;font-style:italic}
+    .footer-sub{color:#aaa;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+    @media print{body{background:#fff}.page{padding:30px}}
+  </style></head><body>
+  <div class="page">
+    <div class="header">
+      <div class="logo">Mishell Fontalvo</div>
+      <div class="psico">Psicóloga</div>
+      <div class="divider"></div>
+      <div style="color:#8A5218;font-size:13px;margin-top:8px">Informe de Sesión</div>
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-box"><label>Persona</label><span>${s.pn||""}</span></div>
+      <div class="meta-box"><label>Empresa</label><span>${s.en||""}</span></div>
+      <div class="meta-box"><label>Fecha</label><span>${s.date}</span></div>
+      <div class="meta-box"><label>Estado</label><span><span class="sem-badge"><span class="sem-dot"></span>${inf.label}</span></span></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Avance de la sesión</div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div class="score-stars">${stars}</div>
+        <div style="font-size:13px;color:#8A5218;font-weight:600">${score}/5</div>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar"></div></div>
+      <div class="progress-label"><span>Sin avance</span><span>Avance máximo</span></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Notas de la sesión</div>
+      <div class="notes-text">${s.notes}</div>
+    </div>
+
+    ${s.report?`<div class="section"><div class="section-title">Observaciones adicionales</div><div class="notes-text">${s.report}</div></div>`:""}
+
+    <div class="footer">
+      <div class="footer-logo">Mishell Fontalvo</div>
+      <div class="footer-sub">Psicóloga · Sistema de gestión de sesiones</div>
+    </div>
+  </div>
+  </body></html>`;
   const w=window.open("","_blank");w.document.write(html);w.document.close();setTimeout(()=>w.print(),600);
 }
 
