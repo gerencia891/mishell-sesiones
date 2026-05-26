@@ -328,6 +328,13 @@ async function renderPerson(m,cat,eid,pid){
       </div>`;}).join("")}</div>`;
 }
 
+function toggleSess(id,header){
+  const el=document.getElementById(id);if(!el)return;
+  const arrow=document.getElementById("arrow-"+id.replace("sess-",""));
+  const open=el.style.display==="block";
+  el.style.display=open?"none":"block";
+  if(arrow)arrow.textContent=open?"▼":"▲";
+}
 function filterList(q,cls){document.querySelectorAll("."+cls).forEach(el=>{el.style.display=el.dataset.n&&el.dataset.n.includes(q.toLowerCase())?"flex":"none";});}
 
 function openEmpModal(cat,id,name){
