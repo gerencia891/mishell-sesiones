@@ -147,16 +147,22 @@ function fmt(id,type){
   const ta=document.getElementById(id);if(!ta)return;
   const s=ta.selectionStart,e=ta.selectionEnd,sel=ta.value.substring(s,e);
   if(!sel){toast("Selecciona texto primero","danger");return;}
-  const w=type==="bold"?"**"+sel+"**":"_"+sel+"_";
+  let w;
+  if(type==="bold") w="**"+sel+"**";
+  else if(type==="italic") w="_"+sel+"_";
+  else if(type==="center") w="[c]"+sel+"[/c]";
   ta.value=ta.value.substring(0,s)+w+ta.value.substring(e);
   ta.focus();ta.setSelectionRange(s,s+w.length);
+  ta.scrollTop=ta.scrollTop;
 }
 function fmtLine(id,prefix){
   const ta=document.getElementById(id);if(!ta)return;
+  const scrollTop=ta.scrollTop;
   const pos=ta.selectionStart,before=ta.value.substring(0,pos),after=ta.value.substring(pos);
   const ins=(before.length>0&&!before.endsWith("\n")?"\n":"")+prefix;
   ta.value=before+ins+after;
   ta.focus();ta.setSelectionRange(pos+ins.length,pos+ins.length);
+  ta.scrollTop=scrollTop;
 }
 
 auth.onAuthStateChanged(u=>{
@@ -356,6 +362,7 @@ function openSessModal(cat,eid,pid,id,date,notes,sem,obs,pun){
     <div class="fmt-bar">
       <button type="button" class="fmt-btn" onclick="fmt('m-notes','bold')"><b>N</b> Negrilla</button>
       <button type="button" class="fmt-btn" onclick="fmt('m-notes','italic')"><i>K</i> Cursiva</button>
+      <button type="button" class="fmt-btn" onclick="fmt('m-notes','center')">⬛ Centrar</button>
       <button type="button" class="fmt-btn" onclick="fmtLine('m-notes','• ')">• Lista</button>
       <button type="button" class="fmt-btn" onclick="fmtLine('m-notes','→ ')">→ Punto clave</button>
       <button type="button" class="fmt-btn" onclick="fmtLine('m-notes','✓ ')">✓ Logro</button>
@@ -365,6 +372,7 @@ function openSessModal(cat,eid,pid,id,date,notes,sem,obs,pun){
     <div class="fmt-bar">
       <button type="button" class="fmt-btn" onclick="fmt('m-obs','bold')"><b>N</b> Negrilla</button>
       <button type="button" class="fmt-btn" onclick="fmt('m-obs','italic')"><i>K</i> Cursiva</button>
+      <button type="button" class="fmt-btn" onclick="fmt('m-obs','center')">⬛ Centrar</button>
       <button type="button" class="fmt-btn" onclick="fmtLine('m-obs','• ')">• Lista</button>
       <button type="button" class="fmt-btn" onclick="fmtLine('m-obs','→ ')">→ Punto clave</button>
       <button type="button" class="fmt-btn" onclick="fmtLine('m-obs','✓ ')">✓ Logro</button>
@@ -413,6 +421,7 @@ function doPrint(s){
       .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
       .replace(/\*\*(.*?)\*\*/g,"<strong style='color:#1e293b;font-weight:900'>$1</strong>")
       .replace(/_(.*?)_/g,"<em style='color:#1e40af;font-style:italic'>$1</em>")
+      .replace(/\[c\](.*?)\[\/c\]/g,"<div style='text-align:center;font-weight:600;color:#1e293b;margin:4px 0'>$1</div>")
       .replace(/^(→|•|✓) (.+)$/gm,'<div style="display:flex;gap:10px;margin:6px 0;align-items:flex-start"><span style="color:#C8832A;font-weight:700;flex-shrink:0;font-size:15px">$1</span><span style="color:#334155">$2</span></div>')
       .replace(/\n/g,"<br>");
   }
