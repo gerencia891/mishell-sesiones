@@ -404,25 +404,25 @@ function doPrint(s){
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:Georgia,serif;background:#fff;color:#2c2c2c;line-height:1.7}
     .page{max-width:860px;margin:0 auto;padding:36px 32px}
-    .hero{border:3px solid #B8732A;border-radius:16px;padding:28px 32px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;background:#FDFAF5}
-    .hero-left .brand{color:#B8732A;font-size:30px;font-style:italic;letter-spacing:1px}
+    .hero{border-left:8px solid #B8732A;border-radius:12px;padding:28px 32px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;background:#FDF6ED;border-top:1px solid #E8C99A;border-right:1px solid #E8C99A;border-bottom:1px solid #E8C99A}
+    .hero-left .brand{color:#B8732A;font-size:32px;font-style:italic;letter-spacing:1px}
     .hero-left .psico{color:#8A5218;font-size:10px;letter-spacing:5px;text-transform:uppercase;margin-top:2px}
-    .hero-left .report-type{color:#8A5218;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-top:20px;border-top:1px solid #F0DFC0;padding-top:12px}
-    .hero-left .person-name{font-size:26px;font-weight:700;color:#2c2c2c;margin-top:6px}
-    .hero-left .meta-sub{color:#888;font-size:13px;margin-top:4px}
-    .hero-right{text-align:center;border-left:2px solid #F0DFC0;padding-left:28px}
-    .sem-box{border:3px solid ${semColor};border-radius:12px;padding:12px 20px;text-align:center}
-    .sem-symbol{font-size:28px;color:${semColor};font-weight:700}
-    .sem-label{font-size:13px;font-weight:700;color:${semColor};margin-top:4px}
-    .sem-sub{font-size:10px;color:#aaa;margin-top:2px;letter-spacing:1px;text-transform:uppercase}
+    .hero-left .report-type{color:#B8732A;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-top:20px;border-top:2px solid #E8C99A;padding-top:10px}
+    .hero-left .person-name{font-size:28px;font-weight:700;color:#2c2c2c;margin-top:6px}
+    .hero-left .meta-sub{color:#8A5218;font-size:13px;margin-top:4px}
+    .hero-right{text-align:center;padding-left:28px}
+    .sem-box{border:3px solid ${semColor};border-radius:14px;padding:14px 22px;text-align:center;background:${inf.bg}}
+    .sem-symbol{font-size:32px;color:${semColor};font-weight:700}
+    .sem-label{font-size:14px;font-weight:700;color:${inf.color};margin-top:4px}
+    .sem-sub{font-size:10px;color:${inf.color};opacity:.7;margin-top:2px;letter-spacing:1px;text-transform:uppercase}
     .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
-    .stat-card{border-radius:12px;padding:16px;text-align:center;border:2px solid #F0DFC0}
-    .stat-card.date{border-color:#B8732A}
-    .stat-card.score{border-color:#8A5218}
-    .stat-card.empresa{border-color:#D4943A}
-    .stat-val{font-size:20px;font-weight:700;color:#B8732A}
-    .stat-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#888;margin-top:4px}
-    .stars{font-size:20px;letter-spacing:2px;color:#B8732A}
+    .stat-card{border-radius:12px;padding:18px 16px;text-align:center}
+    .stat-card.date{background:#FDF0E0;border-left:5px solid #B8732A;border-top:1px solid #E8C99A;border-right:1px solid #E8C99A;border-bottom:1px solid #E8C99A}
+    .stat-card.score{background:#F5ECD9;border-left:5px solid #8A5218;border-top:1px solid #E8C99A;border-right:1px solid #E8C99A;border-bottom:1px solid #E8C99A}
+    .stat-card.empresa{background:#FFF8F0;border-left:5px solid #D4943A;border-top:1px solid #E8C99A;border-right:1px solid #E8C99A;border-bottom:1px solid #E8C99A}
+    .stat-val{font-size:18px;font-weight:700;color:#B8732A}
+    .stat-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#8A5218;margin-top:5px}
+    .stars{font-size:22px;letter-spacing:2px;color:#B8732A}
     .section{background:#fff;border:1px solid #F0DFC0;border-radius:12px;padding:20px 24px;margin-bottom:16px}
     .section-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #F0DFC0}
     .section-icon{font-size:18px}
