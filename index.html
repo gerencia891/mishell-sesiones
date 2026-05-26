@@ -397,69 +397,111 @@ function doPrint(s){
   const inf=si(s.semaforo);
   const score=s.puntuacion||0;
   const stars="★".repeat(score)+"☆".repeat(5-score);
-  const dotColor=inf.dot||inf.color;
+  const pct=score*20;
   const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Informe - ${s.pn||""}</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:Georgia,serif;background:#FDFAF5;color:#2c2c2c;line-height:1.8}
-    .page{max-width:860px;margin:0 auto;padding:48px 40px}
-    .header{text-align:center;margin-bottom:36px}
-    .logo{color:#B8732A;font-size:38px;font-style:italic;letter-spacing:1px}
-    .psico{color:#8A5218;letter-spacing:5px;font-size:11px;text-transform:uppercase;margin-top:4px}
-    .divider{width:80px;height:2px;background:#B8732A;margin:14px auto}
-    .meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
-    .meta-box{background:#fff;border:1px solid #F0DFC0;border-radius:10px;padding:14px 16px;text-align:center}
-    .meta-box label{font-size:10px;color:#8A5218;letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:6px}
-    .meta-box span{font-size:15px;font-weight:600;color:#2c2c2c}
-    .sem-badge{display:inline-flex;align-items:center;gap:6px;background:${inf.bg};color:${inf.color};border-radius:20px;padding:4px 14px;font-size:13px;font-weight:600}
-    .sem-dot{width:10px;height:10px;border-radius:50%;background:${dotColor}}
-    .score-stars{color:#B8732A;font-size:20px;letter-spacing:2px}
-    .section{background:#fff;border:1px solid #F0DFC0;border-radius:12px;padding:22px 26px;margin-bottom:20px}
-    .section-title{color:#B8732A;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-    .section-title::after{content:'';flex:1;height:1px;background:#F0DFC0}
-    .notes-text{font-size:14px;color:#333;white-space:pre-wrap;line-height:1.9}
-    .progress-bar-bg{background:#F0DFC0;border-radius:20px;height:10px;margin-top:10px}
-    .progress-bar{height:100%;border-radius:20px;background:${dotColor};width:${score*20}%}
-    .progress-label{display:flex;justify-content:space-between;font-size:11px;color:#999;margin-top:4px}
-    .footer{margin-top:40px;text-align:center;padding-top:20px;border-top:1px solid #F0DFC0}
-    .footer-logo{color:#B8732A;font-size:18px;font-style:italic}
-    .footer-sub{color:#aaa;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-top:2px}
-    @media print{body{background:#fff}.page{padding:30px}}
+    body{font-family:Georgia,serif;background:#f5f5f5;color:#2c2c2c;line-height:1.7}
+    .page{max-width:880px;margin:0 auto;padding:32px 24px}
+    /* HEADER */
+    .hero{background:linear-gradient(135deg,#2C1810 0%,#5C2E0A 60%,#B8732A 100%);border-radius:16px;padding:32px 36px;margin-bottom:28px;display:flex;justify-content:space-between;align-items:center;color:#fff}
+    .hero-left .brand{color:#E8A96A;font-size:26px;font-style:italic;letter-spacing:1px}
+    .hero-left .psico{color:#D4943A;font-size:10px;letter-spacing:5px;text-transform:uppercase;margin-top:2px}
+    .hero-left .report-type{color:rgba(255,255,255,.6);font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-top:20px}
+    .hero-left .person-name{font-size:28px;font-weight:700;color:#fff;margin-top:6px;letter-spacing:.5px}
+    .hero-left .meta-sub{color:rgba(255,255,255,.65);font-size:13px;margin-top:6px}
+    .hero-right{text-align:center}
+    .sem-circle{width:80px;height:80px;border-radius:16px;background:${inf.bg === '#d4edda' ? '#28a745' : inf.bg === '#fff3cd' ? '#ffc107' : '#dc3545'};display:flex;align-items:center;justify-content:center;margin:0 auto 8px;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+    .sem-circle-text{font-size:32px}
+    .sem-label{font-size:13px;font-weight:600;color:#fff}
+    .sem-sub{font-size:11px;color:rgba(255,255,255,.7);margin-top:2px}
+    /* STAT CARDS */
+    .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+    .stat-card{border-radius:14px;padding:20px;color:#fff;text-align:center}
+    .stat-card.date{background:linear-gradient(135deg,#B8732A,#D4943A)}
+    .stat-card.score{background:linear-gradient(135deg,#2C1810,#5C2E0A)}
+    .stat-card.empresa{background:linear-gradient(135deg,#4A4A4A,#6A6A6A)}
+    .stat-val{font-size:26px;font-weight:700;margin-bottom:4px}
+    .stat-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;opacity:.8}
+    .stars{font-size:22px;letter-spacing:3px;margin-bottom:4px}
+    /* PROGRESS */
+    .progress-section{background:#fff;border-radius:14px;padding:22px 26px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+    .section-head{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+    .section-icon{width:32px;height:32px;border-radius:8px;background:#F5ECD9;display:flex;align-items:center;justify-content:center;font-size:16px}
+    .section-title{font-size:14px;font-weight:700;color:#2c2c2c;letter-spacing:.5px}
+    .prog-row{margin-bottom:14px}
+    .prog-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+    .prog-label span:first-child{color:#555;font-weight:600}
+    .prog-label span:last-child{color:#B8732A;font-weight:700}
+    .prog-bg{background:#f0f0f0;border-radius:20px;height:12px;overflow:hidden}
+    .prog-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#B8732A,#D4943A)}
+    /* NOTES */
+    .notes-section{background:#fff;border-radius:14px;padding:22px 26px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+    .notes-body{font-size:14px;color:#444;white-space:pre-wrap;line-height:1.9;background:#FDFAF5;border-left:4px solid #B8732A;padding:16px 20px;border-radius:0 10px 10px 0}
+    .obs-body{font-size:14px;color:#444;white-space:pre-wrap;line-height:1.9}
+    /* FOOTER */
+    .footer{text-align:center;padding:24px 0 8px;border-top:1px solid #e8e8e8;margin-top:8px}
+    .footer-brand{color:#B8732A;font-size:18px;font-style:italic}
+    .footer-sub{color:#bbb;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-top:3px}
+    @media print{body{background:#fff}.page{padding:20px}}
   </style></head><body>
   <div class="page">
-    <div class="header">
-      <div class="logo">Mishell Fontalvo</div>
-      <div class="psico">Psicóloga</div>
-      <div class="divider"></div>
-      <div style="color:#8A5218;font-size:13px;margin-top:8px">Informe de Sesión</div>
-    </div>
 
-    <div class="meta-grid">
-      <div class="meta-box"><label>Persona</label><span>${s.pn||""}</span></div>
-      <div class="meta-box"><label>Empresa</label><span>${s.en||""}</span></div>
-      <div class="meta-box"><label>Fecha</label><span>${s.date}</span></div>
-      <div class="meta-box"><label>Estado</label><span><span class="sem-badge"><span class="sem-dot"></span>${inf.label}</span></span></div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Avance de la sesión</div>
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <div class="score-stars">${stars}</div>
-        <div style="font-size:13px;color:#8A5218;font-weight:600">${score}/5</div>
+    <div class="hero">
+      <div class="hero-left">
+        <div class="brand">Mishell Fontalvo</div>
+        <div class="psico">Psicóloga</div>
+        <div class="report-type" style="margin-top:24px">Informe de Sesión</div>
+        <div class="person-name">${s.pn||""}</div>
+        <div class="meta-sub">${s.en||""} · ${s.date}</div>
       </div>
-      <div class="progress-bar-bg"><div class="progress-bar"></div></div>
-      <div class="progress-label"><span>Sin avance</span><span>Avance máximo</span></div>
+      <div class="hero-right">
+        <div class="sem-circle"><span class="sem-circle-text">${inf.bg==='#d4edda'?'✓':inf.bg==='#fff3cd'?'~':'!'}</span></div>
+        <div class="sem-label">${inf.label}</div>
+        <div class="sem-sub">Estado de sesión</div>
+      </div>
     </div>
 
-    <div class="section">
-      <div class="section-title">Notas de la sesión</div>
-      <div class="notes-text">${s.notes}</div>
+    <div class="stat-grid">
+      <div class="stat-card date">
+        <div class="stat-val">${s.date}</div>
+        <div class="stat-lbl">Fecha de sesión</div>
+      </div>
+      <div class="stat-card score">
+        <div class="stars">${stars}</div>
+        <div class="stat-lbl">Puntuación ${score}/5</div>
+      </div>
+      <div class="stat-card empresa">
+        <div class="stat-val" style="font-size:18px">${s.en||"—"}</div>
+        <div class="stat-lbl">Empresa / Org.</div>
+      </div>
     </div>
 
-    ${s.report?`<div class="section"><div class="section-title">Observaciones adicionales</div><div class="notes-text">${s.report}</div></div>`:""}
+    <div class="progress-section">
+      <div class="section-head"><div class="section-icon">📊</div><div class="section-title">Indicadores de Avance</div></div>
+      <div class="prog-row">
+        <div class="prog-label"><span>Avance general</span><span>${pct}%</span></div>
+        <div class="prog-bg"><div class="prog-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-label"><span>Estado emocional</span><span>${inf.label}</span></div>
+        <div class="prog-bg"><div class="prog-fill" style="width:${inf.bg==='#d4edda'?'100':inf.bg==='#fff3cd'?'60':'30'}%;background:${inf.bg==='#d4edda'?'linear-gradient(90deg,#28a745,#5cb85c)':inf.bg==='#fff3cd'?'linear-gradient(90deg,#ffc107,#ffcd39)':'linear-gradient(90deg,#dc3545,#e05568)'}"></div></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-label"><span>Compromiso observado</span><span>${score>=4?'Alto':score>=3?'Medio':'En desarrollo'}</span></div>
+        <div class="prog-bg"><div class="prog-fill" style="width:${score>=4?'90':score>=3?'60':'35'}%"></div></div>
+      </div>
+    </div>
+
+    <div class="notes-section">
+      <div class="section-head"><div class="section-icon">📝</div><div class="section-title">Notas de la Sesión</div></div>
+      <div class="notes-body">${s.notes}</div>
+    </div>
+
+    ${s.report?`<div class="notes-section"><div class="section-head"><div class="section-icon">💡</div><div class="section-title">Observaciones y Próximos Pasos</div></div><div class="obs-body">${s.report}</div></div>`:""}
 
     <div class="footer">
-      <div class="footer-logo">Mishell Fontalvo</div>
+      <div class="footer-brand">Mishell Fontalvo</div>
       <div class="footer-sub">Psicóloga · Sistema de gestión de sesiones</div>
     </div>
   </div>
