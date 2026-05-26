@@ -258,19 +258,19 @@ async function renderPerson(m,cat,eid,pid){
     <div id="s-list">${ss.length===0?'<div class="empty">Sin sesiones registradas.</div>':ss.map(s=>{
       const sd=s.data();
       const printData=JSON.stringify({...sd,id:s.id,pn,en}).replace(/'/g,"&#39;");
+      const stars="★".repeat(sd.puntuacion||0)+"☆".repeat(5-(sd.puntuacion||0));
       return`<div class="card">
         <div style="display:flex;justify-content:space-between;align-items:flex-start">
           <div style="flex:1">
-            <div style="font-weight:600;font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:8px">📅 ${sd.date} ${badge(sd.semaforo)}</div>
-            <div class="sess-notes">${sd.notes}</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-              <button class="btn btn-primary btn-sm" onclick="genReport('${cat}','${eid}','${pid}','${s.id}',this)">✨ Generar informe</button>
-              ${sd.report?`<button class="btn btn-green btn-sm" onclick='doPrint(${printData})'>🖨️ Ver / PDF</button>`:""}
+            <div style="font-weight:600;font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:8px">📅 ${sd.date} ${badge(sd.semaforo)} <span style="color:#B8732A;font-size:14px">${stars}</span></div>
+            <div class="sess-notes" style="white-space:pre-wrap">${sd.notes}</div>
+            ${sd.report?`<div class="sess-report" style="white-space:pre-wrap;margin-top:8px">${sd.report}</div>`:""}
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+              <button class="btn btn-green btn-sm" onclick='doPrint(${printData})'>🖨️ Descargar informe</button>
             </div>
-            ${sd.report?`<div class="sess-report">${sd.report}</div>`:""}
           </div>
           <div style="display:flex;gap:6px;margin-left:12px">
-            <button class="btn btn-outline btn-sm" onclick="openSessModal('${cat}','${eid}','${pid}','${s.id}','${encodeURIComponent(sd.date)}','${encodeURIComponent(sd.notes)}','${sd.semaforo}')">✏️</button>
+            <button class="btn btn-outline btn-sm" onclick="openSessModal('${cat}','${eid}','${pid}','${s.id}','${encodeURIComponent(sd.date)}','${encodeURIComponent(sd.notes)}','${sd.semaforo}','${encodeURIComponent(sd.report||'')}','${sd.puntuacion||0}')">✏️</button>
             <button class="btn btn-danger btn-sm" onclick="delSess('${cat}','${eid}','${pid}','${s.id}')">🗑️</button>
           </div>
         </div>
@@ -318,26 +318,68 @@ async function delPerson(cat,eid,id){
 // SESSION MODAL
 let _sem="verde",_mr=null,_pun=0;
 function selPun(n){
+  const ta=document.getElementById(id);if(!ta)return;
+  const start=ta.selectionStart,end=ta.selectionEnd,sel=ta.value.substring(start,end);
+  if(!sel){toast("Selecciona texto primero","danger");return;}
+  const wrap=type==="bold"?`**${sel}**`:`_${sel}_`;
+  ta.value=ta.value.substring(0,start)+wrap+ta.value.substring(end);
+  ta.focus();ta.setSelectionRange(start,start+wrap.length);
+}
+function fmtLine(id,prefix){
+  const ta=document.getElementById(id);if(!ta)return;
+  const pos=ta.selectionStart;
+  const before=ta.value.substring(0,pos);
+  const after=ta.value.substring(pos);
+  const insert=(before.length>0&&!before.endsWith("\n")?"\n":"")+prefix;
+  ta.value=before+insert+after;
+  ta.focus();ta.setSelectionRange(pos+insert.length,pos+insert.length);
+}
+function renderText(text){
+  return text
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/_(.*?)_/g,'<em>$1</em>')
+    .replace(/^(→|•|✓) (.+)$/gm,'<div style="display:flex;gap:8px;margin:3px 0"><span style="color:#B8732A;font-weight:700;flex-shrink:0">$1</span><span>$2</span></div>')
+    .replace(/\n/g,'<br>');
+}
   _pun=n;
   [1,2,3,4,5].forEach(i=>{const el=document.getElementById("star-"+i);if(el)el.style.color=i<=n?"#B8732A":"#ddd";});
 }
 function openSessModal(cat,eid,pid,id="",date="",notes="",sem="verde",obs="",pun=0){
   _sem=sem;_pun=parseInt(pun)||0;
   showModal(`<h3 style="color:var(--brand);margin-bottom:16px">${id?"Editar":"Nueva"} sesión</h3>
-    <label class="lbl">Fecha *</label><input id="m-date" type="date" value="${id?decodeURIComponent(date):''}">
-    <label class="lbl">Notas de la sesión *</label>
-    <textarea id="m-notes" placeholder="Escribe aquí todo lo trabajado en la sesión…" style="min-height:140px">${id?decodeURIComponent(notes):''}</textarea>
-    <label class="lbl">Observaciones adicionales</label>
-    <textarea id="m-obs" placeholder="Compromisos, recomendaciones, próximos pasos…" style="min-height:90px">${id?decodeURIComponent(obs):''}</textarea>
-    <label class="lbl">Puntuación de avance (1-5)</label>
+    <label class="lbl">Fecha *</label>
+    <input id="m-date" type="date" value="${id?decodeURIComponent(date):''}">
+    <label class="lbl">Notas de la sesión * <span style="color:#aaa;font-size:11px">(usa los botones para formato)</span></label>
+    <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+      <button type="button" class="btn btn-outline btn-sm" onclick="fmt('m-notes','bold')" title="Negrilla"><b>N</b></button>
+      <button type="button" class="btn btn-outline btn-sm" onclick="fmt('m-notes','italic')" title="Cursiva"><i>K</i></button>
+      <button type="button" class="btn btn-outline btn-sm" onclick="fmtLine('m-notes','• ')" title="Lista">• Lista</button>
+      <button type="button" class="btn btn-outline btn-sm" onclick="fmtLine('m-notes','→ ')" title="Punto clave">→ Clave</button>
+      <button type="button" class="btn btn-outline btn-sm" onclick="fmtLine('m-notes','✓ ')" title="Logro">✓ Logro</button>
+    </div>
+    <textarea id="m-notes" placeholder="Escribe aquí todo lo trabajado en la sesión…" style="min-height:160px;font-family:Georgia,serif">${id?decodeURIComponent(notes):''}</textarea>
+    <label class="lbl">Observaciones y próximos pasos <span style="color:#aaa;font-size:11px">(compromisos, recomendaciones)</span></label>
+    <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+      <button type="button" class="btn btn-outline btn-sm" onclick="fmt('m-obs','bold')"><b>N</b></button>
+      <button type="button" class="btn btn-outline btn-sm" onclick="fmt('m-obs','italic')"><i>K</i></button>
+      <button type="button" class="btn btn-outline btn-sm" onclick="fmtLine('m-obs','• ')">• Lista</button>
+      <button type="button" class="btn btn-outline btn-sm" onclick="fmtLine('m-obs','→ ')">→ Clave</button>
+      <button type="button" class="btn btn-outline btn-sm" onclick="fmtLine('m-obs','✓ ')">✓ Logro</button>
+    </div>
+    <textarea id="m-obs" placeholder="Compromisos, recomendaciones, próximos pasos…" style="min-height:100px;font-family:Georgia,serif">${id?decodeURIComponent(obs):''}</textarea>
+    <label class="lbl">Puntuación de avance</label>
     <div style="display:flex;gap:8px;margin-bottom:16px" id="stars-wrap">
-      ${[1,2,3,4,5].map(n=>`<div onclick="selPun(${n})" id="star-${n}" style="font-size:28px;cursor:pointer;color:${n<=_pun?'#B8732A':'#ddd'};transition:color .15s">★</div>`).join("")}
+      ${[1,2,3,4,5].map(n=>`<div onclick="selPun(${n})" id="star-${n}" style="font-size:32px;cursor:pointer;color:${n<=_pun?'#B8732A':'#ddd'};transition:color .15s;user-select:none">★</div>`).join("")}
     </div>
     <label class="lbl">Semáforo de avance</label>
-    <div style="display:flex;gap:10px;margin-bottom:16px">
+    <div style="display:flex;gap:10px;margin-bottom:18px">
       ${["verde","amarillo","rojo"].map(v=>{const s=si(v);return`<div class="sem-opt" id="so-${v}" style="${v===sem?"background:"+s.bg+";border-color:"+s.dot:""}" onclick="selSem('${v}')"><div style="width:14px;height:14px;border-radius:50%;background:${s.dot};margin:0 auto 4px"></div><div style="font-size:12px;font-weight:600;color:${s.color}">${s.label}</div></div>`;}).join("")}
     </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-outline" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveSess('${cat}','${eid}','${pid}','${id}')">Guardar sesión</button></div>`);
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveSess('${cat}','${eid}','${pid}','${id}')">Guardar sesión</button>
+    </div>`);
+}
 }
 function selSem(v){
   _sem=v;
@@ -398,7 +440,123 @@ function doPrint(s){
   const score=s.puntuacion||0;
   const stars="★".repeat(score)+"☆".repeat(5-score);
   const pct=score*20;
-  const semColor=inf.bg==='#d4edda'?'#28a745':inf.bg==='#fff3cd'?'#ffc107':'#dc3545';
+  const semColor=inf.bg==='#d4edda'?'#28a745':inf.bg==='#fff3cd'?'#e6a817':'#dc3545';
+  const semBg=inf.bg==='#d4edda'?'#1a5c2e':inf.bg==='#fff3cd'?'#7a4d00':'#7a1a1a';
+  const notesHtml=renderText(s.notes||"");
+  const obsHtml=renderText(s.report||"");
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Informe - ${s.pn||""}</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Georgia,serif;background:#0f0a06;min-height:100vh;padding:32px 20px}
+    .page{max-width:880px;margin:0 auto}
+    .hero{background:linear-gradient(135deg,#1a0d05 0%,#2d1608 40%,#6b2e08 80%,#B8732A 100%);border-radius:20px;padding:36px 40px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;border:1px solid #5a2d0a}
+    .brand{color:#E8A96A;font-size:32px;font-style:italic;letter-spacing:1px;margin-bottom:3px}
+    .psico{color:#D4943A;font-size:10px;letter-spacing:6px;text-transform:uppercase}
+    .divider-hero{width:60px;height:2px;background:linear-gradient(90deg,#B8732A,transparent);margin:18px 0 14px}
+    .report-type{color:rgba(255,255,255,.45);font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
+    .person-name{font-size:32px;font-weight:700;color:#fff;letter-spacing:.5px;margin-bottom:6px}
+    .meta-sub{color:rgba(255,255,255,.55);font-size:13px}
+    .sem-pill{background:${semBg};border:2px solid ${semColor};border-radius:16px;padding:18px 24px;text-align:center;min-width:120px}
+    .sem-icon{font-size:36px;margin-bottom:6px}
+    .sem-lbl{font-size:15px;font-weight:700;color:${semColor}}
+    .sem-sub{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:2px;text-transform:uppercase;margin-top:3px}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+    .card-item{border-radius:14px;padding:20px 18px;text-align:center;border:1px solid}
+    .card-date{background:#1a0d05;border-color:#B8732A}
+    .card-score{background:#120a03;border-color:#8A5218}
+    .card-empresa{background:#160c04;border-color:#D4943A}
+    .card-val{font-size:17px;font-weight:700;color:#E8A96A;margin-bottom:5px}
+    .card-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4)}
+    .stars-txt{font-size:22px;color:#B8732A;letter-spacing:3px;margin-bottom:5px}
+    .section{background:#1a0d05;border:1px solid #3d1f08;border-radius:16px;padding:24px 28px;margin-bottom:16px}
+    .sec-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #3d1f08}
+    .sec-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#B8732A,#6b2e08);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+    .sec-title{font-size:12px;font-weight:700;color:#D4943A;letter-spacing:2px;text-transform:uppercase}
+    .prog-row{margin-bottom:16px}
+    .prog-top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:7px}
+    .prog-top span:first-child{color:rgba(255,255,255,.7);font-weight:600}
+    .prog-top span:last-child{color:#E8A96A;font-weight:700}
+    .prog-bg{background:#2d1608;border-radius:20px;height:10px;overflow:hidden}
+    .prog-fill{height:100%;border-radius:20px}
+    .notes-box{background:#120a03;border-left:4px solid #B8732A;border-radius:0 10px 10px 0;padding:18px 22px;font-size:14px;color:rgba(255,255,255,.8);line-height:1.9}
+    .notes-box strong{color:#E8A96A;font-weight:700}
+    .notes-box em{color:#D4943A;font-style:italic}
+    .obs-box{font-size:14px;color:rgba(255,255,255,.75);line-height:1.9}
+    .obs-box strong{color:#E8A96A;font-weight:700}
+    .obs-box em{color:#D4943A;font-style:italic}
+    .footer{background:linear-gradient(135deg,#1a0d05,#2d1608);border-radius:16px;padding:22px;text-align:center;margin-top:8px;border:1px solid #3d1f08}
+    .footer-brand{color:#E8A96A;font-size:20px;font-style:italic;margin-bottom:4px}
+    .footer-sub{color:rgba(255,255,255,.3);font-size:10px;letter-spacing:3px;text-transform:uppercase}
+  </style></head><body>
+  <div class="page">
+    <div class="hero">
+      <div>
+        <div class="brand">Mishell Fontalvo</div>
+        <div class="psico">Psicóloga</div>
+        <div class="divider-hero"></div>
+        <div class="report-type">Informe de Sesión</div>
+        <div class="person-name">${s.pn||""}</div>
+        <div class="meta-sub">${s.en||""} &nbsp;·&nbsp; ${s.date}</div>
+      </div>
+      <div class="sem-pill">
+        <div class="sem-icon">${inf.bg==='#d4edda'?'✅':inf.bg==='#fff3cd'?'⚡':'🔴'}</div>
+        <div class="sem-lbl">${inf.label}</div>
+        <div class="sem-sub">Estado</div>
+      </div>
+    </div>
+
+    <div class="cards">
+      <div class="card-item card-date">
+        <div class="card-val">${s.date}</div>
+        <div class="card-lbl">Fecha de sesión</div>
+      </div>
+      <div class="card-item card-score">
+        <div class="stars-txt">${stars}</div>
+        <div class="card-lbl">Puntuación ${score} / 5</div>
+      </div>
+      <div class="card-item card-empresa">
+        <div class="card-val" style="font-size:14px">${s.en||"—"}</div>
+        <div class="card-lbl">Empresa / Org.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head"><div class="sec-icon">📊</div><div class="sec-title">Indicadores de Avance</div></div>
+      <div class="prog-row">
+        <div class="prog-top"><span>Avance general</span><span>${pct}%</span></div>
+        <div class="prog-bg"><div class="prog-fill" style="width:${pct}%;background:linear-gradient(90deg,#B8732A,#E8A96A)"></div></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-top"><span>Estado emocional</span><span style="color:${semColor}">${inf.label}</span></div>
+        <div class="prog-bg"><div class="prog-fill" style="width:${inf.bg==='#d4edda'?'100':inf.bg==='#fff3cd'?'60':'30'}%;background:${semColor}"></div></div>
+      </div>
+      <div class="prog-row" style="margin-bottom:0">
+        <div class="prog-top"><span>Compromiso observado</span><span>${score>=4?'Alto':score>=3?'Medio':'En desarrollo'}</span></div>
+        <div class="prog-bg"><div class="prog-fill" style="width:${score>=4?'90':score>=3?'60':'35'}%;background:linear-gradient(90deg,#D4943A,#E8A96A)"></div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head"><div class="sec-icon">📝</div><div class="sec-title">Notas de la Sesión</div></div>
+      <div class="notes-box">${notesHtml}</div>
+    </div>
+
+    ${obsHtml?`<div class="section"><div class="sec-head"><div class="sec-icon">💡</div><div class="sec-title">Observaciones y Próximos Pasos</div></div><div class="obs-box">${obsHtml}</div></div>`:""}
+
+    <div class="footer">
+      <div class="footer-brand">Mishell Fontalvo</div>
+      <div class="footer-sub">Psicóloga · Sistema de gestión de sesiones</div>
+    </div>
+  </div>
+  </body></html>`;
+  const blob=new Blob([html],{type:"text/html;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download=`Informe-${(s.pn||"sesion").replace(/\s+/g,"-")}-${s.date}.html`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast("Informe descargado ✨");
+}
   const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Informe - ${s.pn||""}</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
