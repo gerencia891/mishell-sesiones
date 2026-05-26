@@ -404,69 +404,70 @@ function doPrint(s){
   const score=s.puntuacion||0;
   const stars="★".repeat(score)+"☆".repeat(5-score);
   const pct=score*20;
-  const semColor=inf.bg==="#d4edda"?"#28a745":inf.bg==="#fff3cd"?"#e6a817":"#dc3545";
-  const semBg=inf.bg==="#d4edda"?"#0d3320":inf.bg==="#fff3cd"?"#3d2800":"#3d0d0d";
+  const semColor=inf.bg==="#d4edda"?"#10B981":inf.bg==="#fff3cd"?"#F59E0B":"#EF4444";
+  const semBg=inf.bg==="#d4edda"?"#10B98120":inf.bg==="#fff3cd"?"#F59E0B20":"#EF444420";
   const semIcon=inf.bg==="#d4edda"?"✅":inf.bg==="#fff3cd"?"⚡":"🔴";
   function rt(text){
     if(!text)return"";
     return text
       .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
-      .replace(/\*\*(.*?)\*\*/g,"<strong style='color:#E8A96A'>$1</strong>")
-      .replace(/_(.*?)_/g,"<em style='color:#D4943A'>$1</em>")
-      .replace(/^(→|•|✓) (.+)$/gm,'<div style="display:flex;gap:10px;margin:5px 0;align-items:flex-start"><span style="color:#B8732A;font-weight:700;flex-shrink:0;font-size:15px">$1</span><span>$2</span></div>')
+      .replace(/\*\*(.*?)\*\*/g,"<strong style='color:#fff;font-weight:900'>$1</strong>")
+      .replace(/_(.*?)_/g,"<em style='color:#93c5fd;font-style:italic'>$1</em>")
+      .replace(/^(→|•|✓) (.+)$/gm,'<div style="display:flex;gap:10px;margin:6px 0;align-items:flex-start"><span style="color:#C8832A;font-weight:700;flex-shrink:0;font-size:15px">$1</span><span style="color:#cbd5e1">$2</span></div>')
       .replace(/\n/g,"<br>");
   }
   const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Informe - ${s.pn||""}</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:Georgia,serif;background:#0f0804;min-height:100vh;padding:32px 20px}
-    .page{max-width:880px;margin:0 auto}
-    .hero{background:linear-gradient(135deg,#1a0d05 0%,#2d1608 40%,#6b2e08 75%,#B8732A 100%);border-radius:20px;padding:36px 40px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;border:1px solid #6b2e08}
-    .brand{color:#E8A96A;font-size:32px;font-style:italic;letter-spacing:1px;margin-bottom:2px}
-    .psico{color:#D4943A;font-size:10px;letter-spacing:6px;text-transform:uppercase}
-    .div-line{width:50px;height:2px;background:linear-gradient(90deg,#E8A96A,transparent);margin:16px 0 12px}
-    .rtype{color:rgba(255,255,255,.4);font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
-    .pname{font-size:30px;font-weight:700;color:#fff;margin-bottom:6px}
-    .msub{color:rgba(255,255,255,.5);font-size:13px}
-    .sem-pill{background:${semBg};border:2px solid ${semColor};border-radius:16px;padding:20px 28px;text-align:center;min-width:130px}
-    .sem-icon{font-size:38px;margin-bottom:8px}
+    body{font-family:Arial,sans-serif;background:#0f172a;min-height:100vh;padding:32px 20px;color:#1e293b;font-size:13px;line-height:1.5}
+    .page{max-width:800px;margin:0 auto}
+    .hdr{background:linear-gradient(135deg,#1e293b,#1e3a5f);color:#fff;border-radius:16px;padding:32px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center}
+    .brand{font-style:italic;font-family:Georgia,serif;font-size:22px;color:#C8832A}
+    .brand-sub{font-size:9px;letter-spacing:5px;color:#C8832A;text-transform:uppercase;margin-top:2px}
+    .div-line{width:50px;height:2px;background:#C8832A;margin:18px 0 12px}
+    .rtype{color:#93c5fd;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
+    .pname{font-size:26px;font-weight:900;color:#fff;margin-bottom:6px}
+    .msub{color:#94a3b8;font-size:12px}
+    .sem-box{text-align:center;background:${semBg};border:2px solid ${semColor};border-radius:16px;padding:20px 28px;min-width:130px}
+    .sem-icon{font-size:36px;margin-bottom:8px}
     .sem-lbl{font-size:15px;font-weight:700;color:${semColor}}
-    .sem-sub{font-size:9px;color:rgba(255,255,255,.35);letter-spacing:2px;text-transform:uppercase;margin-top:3px}
-    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
-    .ci{border-radius:14px;padding:20px;text-align:center;border:1px solid}
-    .ci.date{background:#1a0d05;border-color:#B8732A}
-    .ci.score{background:#120a03;border-color:#8A5218}
-    .ci.emp{background:#160c04;border-color:#D4943A}
-    .cv{font-size:17px;font-weight:700;color:#E8A96A;margin-bottom:5px}
-    .cl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35)}
-    .stars{font-size:22px;color:#B8732A;letter-spacing:3px;margin-bottom:5px}
-    .sec{background:#1a0d05;border:1px solid #3d1f08;border-radius:16px;padding:24px 28px;margin-bottom:16px}
-    .sh{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #3d1f08}
-    .si{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#B8732A,#6b2e08);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
-    .st{font-size:12px;font-weight:700;color:#D4943A;letter-spacing:2px;text-transform:uppercase}
+    .sem-sub{font-size:9px;color:#64748b;letter-spacing:2px;text-transform:uppercase;margin-top:3px}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+    .ci{border-radius:12px;padding:18px;text-align:center;color:#fff}
+    .ci.date{background:#1e40af}
+    .ci.score{background:#7c3aed}
+    .ci.emp{background:#0f766e}
+    .cv{font-size:17px;font-weight:900;margin-bottom:4px}
+    .cl{font-size:10px;letter-spacing:2px;text-transform:uppercase;opacity:.75}
+    .stars{font-size:22px;letter-spacing:3px;margin-bottom:4px;color:#fbbf24}
+    .sec{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:22px 26px;margin-bottom:16px}
+    .sh{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #334155}
+    .si-box{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#1e40af,#3b82f6);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+    .st{font-size:12px;font-weight:700;color:#93c5fd;letter-spacing:2px;text-transform:uppercase}
     .pr{margin-bottom:14px}
-    .pt{display:flex;justify-content:space-between;font-size:13px;margin-bottom:7px}
-    .pt span:first-child{color:rgba(255,255,255,.65);font-weight:600}
-    .pt span:last-child{color:#E8A96A;font-weight:700}
-    .pb{background:#2d1608;border-radius:20px;height:10px;overflow:hidden}
-    .pf{height:100%;border-radius:20px;background:linear-gradient(90deg,#B8732A,#E8A96A)}
-    .nb{background:#120a03;border-left:4px solid #B8732A;border-radius:0 10px 10px 0;padding:18px 22px;font-size:14px;color:rgba(255,255,255,.8);line-height:1.9}
-    .ob{font-size:14px;color:rgba(255,255,255,.75);line-height:1.9}
-    .ft{background:linear-gradient(135deg,#1a0d05,#2d1608);border-radius:16px;padding:22px;text-align:center;margin-top:8px;border:1px solid #3d1f08}
-    .fb{color:#E8A96A;font-size:20px;font-style:italic;margin-bottom:4px}
-    .fs{color:rgba(255,255,255,.25);font-size:10px;letter-spacing:3px;text-transform:uppercase}
+    .pt{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+    .pt span:first-child{color:#cbd5e1;font-weight:600}
+    .pt span:last-child{color:#C8832A;font-weight:700}
+    .pb{background:#0f172a;border-radius:99px;height:12px;overflow:hidden}
+    .pf{height:100%;border-radius:99px;background:linear-gradient(90deg,#1e40af,#3b82f6)}
+    .nb{background:#0f172a;border-left:4px solid #C8832A;border-radius:0 10px 10px 0;padding:18px 22px;font-size:13px;color:#cbd5e1;line-height:1.9}
+    .ob{font-size:13px;color:#94a3b8;line-height:1.9}
+    .ft{background:linear-gradient(135deg,#1e293b,#1e3a5f);border-radius:12px;padding:20px;text-align:center;margin-top:8px;border:1px solid #334155}
+    .fb{font-style:italic;font-family:Georgia,serif;font-size:18px;color:#C8832A;margin-bottom:4px}
+    .fs{color:#64748b;font-size:10px;letter-spacing:3px;text-transform:uppercase}
+    @media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
   </style></head><body>
   <div class="page">
-    <div class="hero">
+    <div class="hdr">
       <div>
         <div class="brand">Mishell Fontalvo</div>
-        <div class="psico">Psicóloga</div>
+        <div class="brand-sub">Psicóloga</div>
         <div class="div-line"></div>
         <div class="rtype">Informe de Sesión</div>
         <div class="pname">${s.pn||""}</div>
         <div class="msub">${s.en||""} &nbsp;·&nbsp; ${s.date}</div>
       </div>
-      <div class="sem-pill">
+      <div class="sem-box">
         <div class="sem-icon">${semIcon}</div>
         <div class="sem-lbl">${inf.label}</div>
         <div class="sem-sub">Estado de sesión</div>
@@ -478,16 +479,16 @@ function doPrint(s){
       <div class="ci emp"><div class="cv" style="font-size:14px">${s.en||"—"}</div><div class="cl">Empresa / Org.</div></div>
     </div>
     <div class="sec">
-      <div class="sh"><div class="si">📊</div><div class="st">Indicadores de Avance</div></div>
+      <div class="sh"><div class="si-box">📊</div><div class="st">Indicadores de Avance</div></div>
       <div class="pr"><div class="pt"><span>Avance general</span><span>${pct}%</span></div><div class="pb"><div class="pf" style="width:${pct}%"></div></div></div>
       <div class="pr"><div class="pt"><span>Estado emocional</span><span style="color:${semColor}">${inf.label}</span></div><div class="pb"><div class="pf" style="width:${inf.bg==="#d4edda"?"100":inf.bg==="#fff3cd"?"60":"30"}%;background:${semColor}"></div></div></div>
       <div class="pr" style="margin-bottom:0"><div class="pt"><span>Compromiso observado</span><span>${score>=4?"Alto":score>=3?"Medio":"En desarrollo"}</span></div><div class="pb"><div class="pf" style="width:${score>=4?"90":score>=3?"60":"35"}%"></div></div></div>
     </div>
     <div class="sec">
-      <div class="sh"><div class="si">📝</div><div class="st">Notas de la Sesión</div></div>
+      <div class="sh"><div class="si-box">📝</div><div class="st">Notas de la Sesión</div></div>
       <div class="nb">${rt(s.notes)}</div>
     </div>
-    ${s.report?`<div class="sec"><div class="sh"><div class="si">💡</div><div class="st">Observaciones y Próximos Pasos</div></div><div class="ob">${rt(s.report)}</div></div>`:""}
+    ${s.report?`<div class="sec"><div class="sh"><div class="si-box">💡</div><div class="st">Observaciones y Próximos Pasos</div></div><div class="ob">${rt(s.report)}</div></div>`:""}
     <div class="ft"><div class="fb">Mishell Fontalvo</div><div class="fs">Psicóloga · Sistema de gestión de sesiones</div></div>
   </div></body></html>`;
   const blob=new Blob([html],{type:"text/html;charset=utf-8"});
