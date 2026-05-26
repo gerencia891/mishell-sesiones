@@ -471,10 +471,13 @@ function doPrint(s){
     if(!text)return"";
     return text
       .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
-      .replace(/\*\*(.*?)\*\*/g,"<strong style='color:#1e293b;font-weight:900'>$1</strong>")
-      .replace(/_(.*?)_/g,"<em style='color:#1e40af;font-style:italic'>$1</em>")
-      .replace(/\[c\](.*?)\[\/c\]/g,"<div style='text-align:center;font-weight:700;color:#1e293b;margin:6px 0'>$1</div>")
-      .replace(/^(→|•|✓) (.+)$/gm,'<div style="display:flex;gap:10px;margin:6px 0;align-items:flex-start"><span style="color:#C8832A;font-weight:700;flex-shrink:0">$1</span><span style="color:#334155">$2</span></div>')
+      .replace(/\*\*(.*?)\*\*/g,"<strong style='color:#1e293b;font-weight:900;font-size:13px'>$1</strong>")
+      .replace(/_(.*?)_/g,"<em style='color:#1e40af;font-style:italic;font-size:13px'>$1</em>")
+      .replace(/\[c\](.*?)\[\/c\]/g,"<div style='text-align:center;font-weight:700;font-size:13px;color:#1e293b;margin:8px 0'>$1</div>")
+      .replace(/^(→) (.+)$/gm,'<div style="display:flex;gap:10px;margin:5px 0;align-items:flex-start;font-size:13px"><span style="color:#1e40af;font-weight:700;flex-shrink:0;font-size:13px">→</span><span style="color:#334155;font-size:13px">$2</span></div>')
+      .replace(/^(•) (.+)$/gm,'<div style="display:flex;gap:10px;margin:5px 0;align-items:flex-start;font-size:13px"><span style="color:#C8832A;font-weight:700;flex-shrink:0;font-size:13px">•</span><span style="color:#334155;font-size:13px">$2</span></div>')
+      .replace(/^(✓) (.+)$/gm,'<div style="display:flex;gap:10px;margin:5px 0;align-items:flex-start;font-size:13px"><span style="color:#10B981;font-weight:700;flex-shrink:0;font-size:13px">✓</span><span style="color:#334155;font-size:13px">$2</span></div>')
+      .replace(/\n\n/g,'<div style="height:8px"></div>')
       .replace(/\n/g,"<br>");
   }
   const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Informe - ${s.pn||""}</title>
@@ -511,8 +514,10 @@ function doPrint(s){
     .pt span:last-child{color:#1e40af;font-weight:700}
     .pb{background:#f1f5f9;border-radius:99px;height:12px;overflow:hidden}
     .pf{height:100%;border-radius:99px;background:linear-gradient(90deg,#1e40af,#3b82f6)}
-    .nb{background:#eff6ff;border-left:4px solid #1e40af;border-radius:0 10px 10px 0;padding:18px 22px;font-size:13px;color:#334155;line-height:1.9}
-    .ob{font-size:13px;color:#475569;line-height:1.9}
+    .nb{background:#eff6ff;border-left:4px solid #1e40af;border-radius:0 10px 10px 0;padding:18px 22px;font-size:13px;color:#334155;line-height:1.9;font-family:Arial,sans-serif}
+    .nb *{font-size:13px!important;font-family:Arial,sans-serif!important}
+    .ob{font-size:13px;color:#475569;line-height:1.9;font-family:Arial,sans-serif}
+    .ob *{font-size:13px!important;font-family:Arial,sans-serif!important}
     .ft{background:linear-gradient(135deg,#1e293b,#1e40af);border-radius:12px;padding:20px;text-align:center;margin-top:8px}
     .fb{font-style:italic;font-family:Georgia,serif;font-size:18px;color:#C8832A;margin-bottom:4px}
     .fs{color:rgba(255,255,255,.45);font-size:10px;letter-spacing:3px;text-transform:uppercase}
