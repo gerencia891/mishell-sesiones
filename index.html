@@ -21,7 +21,8 @@ body{font-family:Georgia,serif;background:#FDFAF5;color:#222;min-height:100vh}
 .nav-item.active{color:var(--brand);background:var(--bl);border-left-color:var(--brand);font-weight:600}
 .main{flex:1;padding:28px;overflow-y:auto}
 .card{background:#fff;border:1px solid var(--bl);border-radius:12px;padding:16px 20px;margin-bottom:12px}
-.btn{border:none;border-radius:8px;padding:7px 15px;cursor:pointer;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:6px;font-family:Georgia,serif}
+.btn{border:none;border-radius:8px;padding:7px 15px;cursor:pointer;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:6px;font-family:Georgia,serif;transition:opacity .15s}
+.btn:hover{opacity:.85}
 .btn-primary{background:var(--brand);color:#fff}
 .btn-outline{background:transparent;color:var(--brand);border:1.5px solid var(--brand)}
 .btn-danger{background:#dc3545;color:#fff}
@@ -40,7 +41,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;padding:6px 10px;color:var(--bd);font-weight:600;font-size:11px;letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid var(--bl)}
 td{padding:8px 10px;border-bottom:1px solid var(--bl)}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:100;display:flex;align-items:center;justify-content:center}
-.modal{background:#fff;border-radius:14px;padding:26px;width:480px;max-width:95vw;max-height:88vh;overflow-y:auto}
+.modal{background:#fff;border-radius:14px;padding:26px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto}
 .toast{position:fixed;top:16px;right:16px;z-index:999;border-radius:10px;padding:11px 20px;font-size:14px;font-weight:500;color:#fff}
 .sem-opt{flex:1;padding:9px 8px;border-radius:10px;background:#f8f8f8;border:2px solid #ddd;cursor:pointer;text-align:center}
 .search-wrap{position:relative;width:260px}
@@ -49,14 +50,16 @@ td{padding:8px 10px;border-bottom:1px solid var(--bl)}
 .search-drop.show{display:block}
 .sr-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--bl);font-size:13px}
 .sr-item:hover{background:var(--bl)}
-.breadcrumb{display:flex;align-items:center;gap:8px;margin-bottom:20px;font-size:13px;color:#999}
-.sess-notes{background:#fafaf8;border-left:3px solid var(--bl);padding:10px 14px;border-radius:0 8px 8px 0;font-size:13px;color:#444;white-space:pre-wrap;margin:8px 0}
-.sess-report{background:#fff9f4;border:1px solid var(--bl);border-radius:10px;padding:14px 18px;font-size:13px;color:#333;white-space:pre-wrap;line-height:1.9;margin-top:10px}
+.breadcrumb{display:flex;align-items:center;gap:8px;margin-bottom:20px;font-size:13px;color:#999;flex-wrap:wrap}
+.sess-notes{background:#fafaf8;border-left:3px solid var(--bl);padding:10px 14px;border-radius:0 8px 8px 0;font-size:13px;color:#444;line-height:1.8;margin:8px 0}
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center}
 .login-box{background:#fff;border:1px solid var(--bl);border-radius:16px;padding:40px;width:380px;text-align:center}
 .chip{font-size:11px;color:var(--bd);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
 .empty{color:#ccc;text-align:center;padding:28px 0;font-size:14px}
 .saving{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#333;color:#fff;border-radius:10px;padding:7px 18px;font-size:12px;z-index:998}
+.fmt-bar{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+.fmt-btn{background:#F5ECD9;color:var(--brand);border:1px solid var(--bl);border-radius:6px;padding:3px 10px;cursor:pointer;font-size:12px;font-family:Georgia,serif;font-weight:600}
+.fmt-btn:hover{background:var(--bl)}
 </style>
 </head>
 <body>
@@ -111,23 +114,13 @@ td{padding:8px 10px;border-bottom:1px solid var(--bl)}
 <div id="saving" class="saving" style="display:none">💾 Guardando...</div>
 
 <script>
-const FB = {
-  apiKey:"AIzaSyALCwXNrwJuc-jY_1FPPvewtyY113jf4e8",
-  authDomain:"mishell360-dc7dd.firebaseapp.com",
-  projectId:"mishell360-dc7dd",
-  storageBucket:"mishell360-dc7dd.firebasestorage.app",
-  messagingSenderId:"867252715678",
-  appId:"1:867252715678:web:8d10855a6820466d673b8f"
-};
-const GEMINI_KEY = "AIzaSyDWdynCcOZBW57YellWK7Q5DjYdk6NPS1o";
+const FB={apiKey:"AIzaSyALCwXNrwJuc-jY_1FPPvewtyY113jf4e8",authDomain:"mishell360-dc7dd.firebaseapp.com",projectId:"mishell360-dc7dd",storageBucket:"mishell360-dc7dd.firebasestorage.app",messagingSenderId:"867252715678",appId:"1:867252715678:web:8d10855a6820466d673b8f"};
 firebase.initializeApp(FB);
-const db = firebase.firestore();
-const auth = firebase.auth();
-
+const db=firebase.firestore(),auth=firebase.auth();
 const CL={consultoria:"Consultoría",reuniones:"Reuniones",terapia:"Terapia"};
 const CI={consultoria:"💼",reuniones:"🤝",terapia:"🧠"};
 let NAV={view:"home",cat:null,eid:null,pid:null};
-let currentUser=null;
+let currentUser=null,_sem="verde",_pun=0;
 
 function si(v){
   if(v==="verde") return{bg:"#d4edda",color:"#155724",dot:"#28a745",label:"Avance"};
@@ -139,6 +132,32 @@ function toast(msg,type="ok"){const t=document.getElementById("toast");t.textCon
 function showModal(h){document.getElementById("modal-box").innerHTML=h;document.getElementById("modal-wrap").style.display="flex";}
 function closeModal(){document.getElementById("modal-wrap").style.display="none";}
 function saving(v){document.getElementById("saving").style.display=v?"block":"none";}
+
+function renderText(text){
+  if(!text) return "";
+  return text
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>")
+    .replace(/_(.*?)_/g,"<em>$1</em>")
+    .replace(/^(→|•|✓) (.+)$/gm,'<div style="display:flex;gap:8px;margin:4px 0;align-items:flex-start"><span style="color:#B8732A;font-weight:700;flex-shrink:0">$1</span><span>$2</span></div>')
+    .replace(/\n/g,"<br>");
+}
+
+function fmt(id,type){
+  const ta=document.getElementById(id);if(!ta)return;
+  const s=ta.selectionStart,e=ta.selectionEnd,sel=ta.value.substring(s,e);
+  if(!sel){toast("Selecciona texto primero","danger");return;}
+  const w=type==="bold"?"**"+sel+"**":"_"+sel+"_";
+  ta.value=ta.value.substring(0,s)+w+ta.value.substring(e);
+  ta.focus();ta.setSelectionRange(s,s+w.length);
+}
+function fmtLine(id,prefix){
+  const ta=document.getElementById(id);if(!ta)return;
+  const pos=ta.selectionStart,before=ta.value.substring(0,pos),after=ta.value.substring(pos);
+  const ins=(before.length>0&&!before.endsWith("\n")?"\n":"")+prefix;
+  ta.value=before+ins+after;
+  ta.focus();ta.setSelectionRange(pos+ins.length,pos+ins.length);
+}
 
 auth.onAuthStateChanged(u=>{
   document.getElementById("loading").style.display="none";
@@ -158,15 +177,14 @@ function doRegister(){
 }
 
 const uid=()=>currentUser.uid;
-const eRef=(c)=>db.collection(`u/${uid()}/${c}`);
-const pRef=(c,ei)=>db.collection(`u/${uid()}/${c}/${ei}/p`);
-const sRef=(c,ei,pi)=>db.collection(`u/${uid()}/${c}/${ei}/p/${pi}/s`);
+const eRef=(c)=>db.collection("u/"+uid()+"/"+c);
+const pRef=(c,ei)=>db.collection("u/"+uid()+"/"+c+"/"+ei+"/p");
+const sRef=(c,ei,pi)=>db.collection("u/"+uid()+"/"+c+"/"+ei+"/p/"+pi+"/s");
 
-function go(view,cat=null,eid=null,pid=null){
-  NAV={view,cat,eid,pid};
+function go(view,cat,eid,pid){
+  NAV={view,cat:cat||null,eid:eid||null,pid:pid||null};
   document.querySelectorAll(".nav-item").forEach(el=>el.classList.remove("active"));
-  const k=cat||"home";
-  const el=document.getElementById("n-"+k);if(el)el.classList.add("active");
+  const el=document.getElementById("n-"+(cat||"home"));if(el)el.classList.add("active");
   render();
 }
 
@@ -201,7 +219,7 @@ function semHtml(sess){
 
 function tblHtml(sess,showCat,showEmp,showPerson){
   if(!sess.length) return'<div class="empty">Sin sesiones registradas aún.</div>';
-  return`<div style="overflow-x:auto"><table><thead><tr><th>Fecha</th>${showEmp?"<th>Empresa</th>":""}${showPerson?"<th>Persona</th>":""}${showCat?"<th>Categoría</th>":""}<th>Avance</th><th>Informe</th></tr></thead><tbody>${sess.slice(0,15).map(s=>`<tr><td>${s.date}</td>${showEmp?`<td style="font-weight:600">${s.en}</td>`:""}${showPerson?`<td>${s.pn}</td>`:""}${showCat?`<td>${CI[s.cat]} ${CL[s.cat]}</td>`:""}<td>${badge(s.semaforo)}</td><td>${s.report?`<button class="btn btn-green btn-sm" onclick='doPrint(${JSON.stringify(s)})'>🖨️ Ver informe</button>`:'<span style="color:#ccc;font-size:12px">Pendiente</span>'}</td></tr>`).join("")}</tbody></table></div>`;
+  return`<div style="overflow-x:auto"><table><thead><tr><th>Fecha</th>${showEmp?"<th>Empresa</th>":""}${showPerson?"<th>Persona</th>":""}${showCat?"<th>Categoría</th>":""}<th>Avance</th><th>Informe</th></tr></thead><tbody>${sess.slice(0,15).map(s=>{const printData=JSON.stringify(s).replace(/'/g,"&#39;");return`<tr><td>${s.date}</td>${showEmp?`<td style="font-weight:600">${s.en}</td>`:""}${showPerson?`<td>${s.pn}</td>`:""}${showCat?`<td>${CI[s.cat]} ${CL[s.cat]}</td>`:""}<td>${badge(s.semaforo)}</td><td>${s.notes?`<button class="btn btn-green btn-sm" onclick='doPrint(${printData})'>🖨️ Descargar</button>`:'<span style="color:#ccc;font-size:12px">Sin notas</span>'}</td></tr>`;}).join("")}</tbody></table></div>`;
 }
 
 async function renderHome(m){
@@ -211,9 +229,7 @@ async function renderHome(m){
   const totP=await Promise.all(["consultoria","reuniones","terapia"].map(c=>eRef(c).get().then(async r=>{let n=0;for(const e of r.docs)n+=(await pRef(c,e.id).get()).size;return n;})));
   m.innerHTML=`
     <div style="margin-bottom:22px"><div style="color:var(--brand);font-size:24px;font-style:italic">Bienvenida, Mishell</div><div style="color:#999;font-size:13px;margin-top:2px">Resumen general de tu práctica profesional</div></div>
-    <div class="stat-grid">
-      ${[{l:"Empresas/Orgs.",v:totE.reduce((a,b)=>a+b,0),i:"📁"},{l:"Personas",v:totP.reduce((a,b)=>a+b,0),i:"👥"},{l:"Sesiones",v:all.length,i:"📋"},{l:"Informes listos",v:all.filter(s=>s.report).length,i:"✨"}].map(x=>`<div class="stat-card"><div style="font-size:22px">${x.i}</div><div style="font-size:26px;font-weight:700;color:var(--brand)">${x.v}</div><div style="font-size:11px;color:#999">${x.l}</div></div>`).join("")}
-    </div>
+    <div class="stat-grid">${[{l:"Empresas",v:totE.reduce((a,b)=>a+b,0),i:"📁"},{l:"Personas",v:totP.reduce((a,b)=>a+b,0),i:"👥"},{l:"Sesiones",v:all.length,i:"📋"},{l:"Con informe",v:all.filter(s=>s.notes).length,i:"✨"}].map(x=>`<div class="stat-card"><div style="font-size:22px">${x.i}</div><div style="font-size:26px;font-weight:700;color:var(--brand)">${x.v}</div><div style="font-size:11px;color:#999">${x.l}</div></div>`).join("")}</div>
     ${semHtml(all)}
     <div class="card"><div class="chip">Sesiones recientes</div>${tblHtml(all,true,true,true)}</div>`;
 }
@@ -227,7 +243,7 @@ async function renderCat(m,cat){
     <div class="card" style="margin-bottom:22px"><div class="chip">Sesiones de ${CL[cat]}</div>${tblHtml(all,false,true,true)}</div>
     <div class="chip">Carpetas</div>
     <input placeholder="🔍 Buscar carpeta…" oninput="filterList(this.value,'ec')" style="margin-top:8px">
-    <div id="emp-list">${emps.length===0?'<div class="empty">Sin carpetas. ¡Crea la primera!</div>':emps.map(e=>{const n=e.data().name.replace(/\\/g,"\\\\").replace(/'/g,"\\'");return`<div class="card ec" data-n="${e.data().name.toLowerCase()}" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="go('empresa','${cat}','${e.id}')"><div><div style="font-weight:600;font-size:15px">📁 ${e.data().name}</div></div><div style="display:flex;gap:8px" onclick="event.stopPropagation()"><button class="btn btn-outline btn-sm" onclick="openEmpModal('${cat}','${e.id}','${n}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delEmp('${cat}','${e.id}')">🗑️</button></div></div>`;}).join("")}</div>`;
+    <div id="emp-list">${emps.length===0?'<div class="empty">Sin carpetas. ¡Crea la primera!</div>':emps.map(e=>{const n=e.data().name.replace(/'/g,"\\'");return`<div class="card ec" data-n="${e.data().name.toLowerCase()}" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="go('empresa','${cat}','${e.id}')"><div><div style="font-weight:600;font-size:15px">📁 ${e.data().name}</div></div><div style="display:flex;gap:8px" onclick="event.stopPropagation()"><button class="btn btn-outline btn-sm" onclick="openEmpModal('${cat}','${e.id}','${n}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delEmp('${cat}','${e.id}')">🗑️</button></div></div>`;}).join("")}</div>`;
 }
 
 async function renderEmpresa(m,cat,eid){
@@ -238,52 +254,52 @@ async function renderEmpresa(m,cat,eid){
   for(const p of ps){const ss=(await sRef(cat,eid,p.id).orderBy("date","desc").get()).docs;ss.forEach(s=>all.push({...s.data(),id:s.id,en,pn:p.data().name,ei:eid,pi:p.id,cat}));}
   all.sort((a,b)=>b.date.localeCompare(a.date));
   m.innerHTML=`
-    <div class="breadcrumb"><button class="btn btn-outline btn-sm" onclick="go('cat','${cat}')">← Volver</button><span>${CL[cat]}</span>/ <span>📁 ${en}</span></div>
+    <div class="breadcrumb"><button class="btn btn-outline btn-sm" onclick="go('cat','${cat}')">← Volver</button><span>${CL[cat]}</span>/<span>📁 ${en}</span></div>
     ${semHtml(all)}
     <div class="card" style="margin-bottom:22px"><div class="chip">Sesiones de ${en}</div>${tblHtml(all,false,false,true)}</div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div class="chip" style="margin:0">Personas</div><button class="btn btn-primary btn-sm" onclick="openPersonModal('${cat}','${eid}')">+ Nueva persona</button></div>
     <input placeholder="🔍 Buscar persona…" oninput="filterList(this.value,'pc')">
-    <div id="p-list">${ps.length===0?'<div class="empty">Sin personas. ¡Agrega la primera!</div>':ps.map(p=>{const n=p.data().name.replace(/\\/g,"\\\\").replace(/'/g,"\\'");return`<div class="card pc" data-n="${p.data().name.toLowerCase()}" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="go('person','${cat}','${eid}','${p.id}')"><div><div style="font-weight:600;font-size:14px">👤 ${p.data().name}</div></div><div style="display:flex;gap:8px" onclick="event.stopPropagation()"><button class="btn btn-outline btn-sm" onclick="openPersonModal('${cat}','${eid}','${p.id}','${n}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delPerson('${cat}','${eid}','${p.id}')">🗑️</button></div></div>`;}).join("")}</div>`;
+    <div id="p-list">${ps.length===0?'<div class="empty">Sin personas. ¡Agrega la primera!</div>':ps.map(p=>{const n=p.data().name.replace(/'/g,"\\'");return`<div class="card pc" data-n="${p.data().name.toLowerCase()}" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="go('person','${cat}','${eid}','${p.id}')"><div><div style="font-weight:600;font-size:14px">👤 ${p.data().name}</div></div><div style="display:flex;gap:8px" onclick="event.stopPropagation()"><button class="btn btn-outline btn-sm" onclick="openPersonModal('${cat}','${eid}','${p.id}','${n}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delPerson('${cat}','${eid}','${p.id}')">🗑️</button></div></div>`;}).join("")}</div>`;
 }
 
 async function renderPerson(m,cat,eid,pid){
   const eDoc=await eRef(cat).doc(eid).get();
   const pDoc=await pRef(cat,eid).doc(pid).get();
-  const en=eDoc.data().name;
-  const pn=pDoc.data().name;
+  const en=eDoc.data().name,pn=pDoc.data().name;
   const ss=(await sRef(cat,eid,pid).orderBy("date","desc").get()).docs;
   m.innerHTML=`
-    <div class="breadcrumb"><button class="btn btn-outline btn-sm" onclick="go('empresa','${cat}','${eid}')">← Volver</button><span>${CL[cat]}</span>/ <span>📁 ${en}</span>/ <span>👤 ${pn}</span></div>
+    <div class="breadcrumb"><button class="btn btn-outline btn-sm" onclick="go('empresa','${cat}','${eid}')">← Volver</button><span>${CL[cat]}</span>/<span>📁 ${en}</span>/<span>👤 ${pn}</span></div>
     <button class="btn btn-primary" style="margin-bottom:18px" onclick="openSessModal('${cat}','${eid}','${pid}')">+ Nueva sesión</button>
     <div id="s-list">${ss.length===0?'<div class="empty">Sin sesiones registradas.</div>':ss.map(s=>{
       const sd=s.data();
-      const printData=JSON.stringify({...sd,id:s.id,pn,en}).replace(/'/g,"&#39;");
       const stars="★".repeat(sd.puntuacion||0)+"☆".repeat(5-(sd.puntuacion||0));
+      const pd=JSON.stringify({...sd,id:s.id,pn,en}).replace(/'/g,"&#39;");
       return`<div class="card">
         <div style="display:flex;justify-content:space-between;align-items:flex-start">
           <div style="flex:1">
-            <div style="font-weight:600;font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:8px">📅 ${sd.date} ${badge(sd.semaforo)} <span style="color:#B8732A;font-size:14px">${stars}</span></div>
-            <div class="sess-notes" style="white-space:pre-wrap">${sd.notes}</div>
-            ${sd.report?`<div class="sess-report" style="white-space:pre-wrap;margin-top:8px">${sd.report}</div>`:""}
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-              <button class="btn btn-green btn-sm" onclick='doPrint(${printData})'>🖨️ Descargar informe</button>
+            <div style="font-weight:600;font-size:14px;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              📅 ${sd.date} ${badge(sd.semaforo)} <span style="color:#B8732A">${stars}</span>
+            </div>
+            <div class="sess-notes">${renderText(sd.notes)}</div>
+            ${sd.report?`<div style="background:#FFF8F0;border:1px solid var(--bl);border-radius:8px;padding:10px 14px;font-size:13px;color:#555;margin-top:8px;line-height:1.8">${renderText(sd.report)}</div>`:""}
+            <div style="margin-top:12px">
+              <button class="btn btn-green btn-sm" onclick='doPrint(${pd})'>🖨️ Descargar informe</button>
             </div>
           </div>
           <div style="display:flex;gap:6px;margin-left:12px">
-            <button class="btn btn-outline btn-sm" onclick="openSessModal('${cat}','${eid}','${pid}','${s.id}','${encodeURIComponent(sd.date)}','${encodeURIComponent(sd.notes)}','${sd.semaforo}','${encodeURIComponent(sd.report||'')}','${sd.puntuacion||0}')">✏️</button>
+            <button class="btn btn-outline btn-sm" onclick="openSessModal('${cat}','${eid}','${pid}','${s.id}','${encodeURIComponent(sd.date)}','${encodeURIComponent(sd.notes||"")}','${sd.semaforo||"verde"}','${encodeURIComponent(sd.report||"")}','${sd.puntuacion||0}')">✏️</button>
             <button class="btn btn-danger btn-sm" onclick="delSess('${cat}','${eid}','${pid}','${s.id}')">🗑️</button>
           </div>
         </div>
       </div>`;}).join("")}</div>`;
 }
 
-function filterList(q,cls){document.querySelectorAll("."+cls).forEach(el=>{el.style.display=el.dataset.n.includes(q.toLowerCase())?"":""  ;el.style.display=el.dataset.n.includes(q.toLowerCase())?"flex":"none";});}
+function filterList(q,cls){document.querySelectorAll("."+cls).forEach(el=>{el.style.display=el.dataset.n&&el.dataset.n.includes(q.toLowerCase())?"flex":"none";});}
 
-// EMPRESA MODAL
-function openEmpModal(cat,id="",name=""){
+function openEmpModal(cat,id,name){
   showModal(`<h3 style="color:var(--brand);margin-bottom:16px">${id?"Editar":"Nueva"} carpeta</h3>
-    <label class="lbl">Nombre *</label><input id="m-name" value="${name}" placeholder="Ej: Nuways, Empresa ABC…">
-    <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-outline" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveEmp('${cat}','${id}')">Guardar</button></div>`);
+    <label class="lbl">Nombre *</label><input id="m-name" value="${name||""}" placeholder="Ej: Nuways, Empresa ABC…">
+    <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-outline" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveEmp('${cat}','${id||""}')">Guardar</button></div>`);
 }
 async function saveEmp(cat,id){
   const name=document.getElementById("m-name").value.trim();if(!name)return;
@@ -297,11 +313,10 @@ async function delEmp(cat,id){
   await eRef(cat).doc(id).delete();go("cat",cat);toast("Eliminado","danger");
 }
 
-// PERSON MODAL
-function openPersonModal(cat,eid,id="",name=""){
+function openPersonModal(cat,eid,id,name){
   showModal(`<h3 style="color:var(--brand);margin-bottom:16px">${id?"Editar":"Nueva"} persona</h3>
-    <label class="lbl">Nombre *</label><input id="m-name" value="${name}" placeholder="Nombre completo">
-    <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-outline" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="savePerson('${cat}','${eid}','${id}')">Guardar</button></div>`);
+    <label class="lbl">Nombre *</label><input id="m-name" value="${name||""}" placeholder="Nombre completo">
+    <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-outline" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="savePerson('${cat}','${eid}','${id||""}')">Guardar</button></div>`);
 }
 async function savePerson(cat,eid,id){
   const name=document.getElementById("m-name").value.trim();if(!name)return;
@@ -315,71 +330,9 @@ async function delPerson(cat,eid,id){
   await pRef(cat,eid).doc(id).delete();go("empresa",cat,eid);toast("Eliminado","danger");
 }
 
-// SESSION MODAL
-let _sem="verde",_mr=null,_pun=0;
 function selPun(n){
-  const ta=document.getElementById(id);if(!ta)return;
-  const start=ta.selectionStart,end=ta.selectionEnd,sel=ta.value.substring(start,end);
-  if(!sel){toast("Selecciona texto primero","danger");return;}
-  const wrap=type==="bold"?`**${sel}**`:`_${sel}_`;
-  ta.value=ta.value.substring(0,start)+wrap+ta.value.substring(end);
-  ta.focus();ta.setSelectionRange(start,start+wrap.length);
-}
-function fmtLine(id,prefix){
-  const ta=document.getElementById(id);if(!ta)return;
-  const pos=ta.selectionStart;
-  const before=ta.value.substring(0,pos);
-  const after=ta.value.substring(pos);
-  const insert=(before.length>0&&!before.endsWith("\n")?"\n":"")+prefix;
-  ta.value=before+insert+after;
-  ta.focus();ta.setSelectionRange(pos+insert.length,pos+insert.length);
-}
-function renderText(text){
-  return text
-    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-    .replace(/_(.*?)_/g,'<em>$1</em>')
-    .replace(/^(→|•|✓) (.+)$/gm,'<div style="display:flex;gap:8px;margin:3px 0"><span style="color:#B8732A;font-weight:700;flex-shrink:0">$1</span><span>$2</span></div>')
-    .replace(/\n/g,'<br>');
-}
   _pun=n;
   [1,2,3,4,5].forEach(i=>{const el=document.getElementById("star-"+i);if(el)el.style.color=i<=n?"#B8732A":"#ddd";});
-}
-function openSessModal(cat,eid,pid,id="",date="",notes="",sem="verde",obs="",pun=0){
-  _sem=sem;_pun=parseInt(pun)||0;
-  showModal(`<h3 style="color:var(--brand);margin-bottom:16px">${id?"Editar":"Nueva"} sesión</h3>
-    <label class="lbl">Fecha *</label>
-    <input id="m-date" type="date" value="${id?decodeURIComponent(date):''}">
-    <label class="lbl">Notas de la sesión * <span style="color:#aaa;font-size:11px">(usa los botones para formato)</span></label>
-    <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">
-      <button type="button" class="btn btn-outline btn-sm" onclick="fmt('m-notes','bold')" title="Negrilla"><b>N</b></button>
-      <button type="button" class="btn btn-outline btn-sm" onclick="fmt('m-notes','italic')" title="Cursiva"><i>K</i></button>
-      <button type="button" class="btn btn-outline btn-sm" onclick="fmtLine('m-notes','• ')" title="Lista">• Lista</button>
-      <button type="button" class="btn btn-outline btn-sm" onclick="fmtLine('m-notes','→ ')" title="Punto clave">→ Clave</button>
-      <button type="button" class="btn btn-outline btn-sm" onclick="fmtLine('m-notes','✓ ')" title="Logro">✓ Logro</button>
-    </div>
-    <textarea id="m-notes" placeholder="Escribe aquí todo lo trabajado en la sesión…" style="min-height:160px;font-family:Georgia,serif">${id?decodeURIComponent(notes):''}</textarea>
-    <label class="lbl">Observaciones y próximos pasos <span style="color:#aaa;font-size:11px">(compromisos, recomendaciones)</span></label>
-    <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">
-      <button type="button" class="btn btn-outline btn-sm" onclick="fmt('m-obs','bold')"><b>N</b></button>
-      <button type="button" class="btn btn-outline btn-sm" onclick="fmt('m-obs','italic')"><i>K</i></button>
-      <button type="button" class="btn btn-outline btn-sm" onclick="fmtLine('m-obs','• ')">• Lista</button>
-      <button type="button" class="btn btn-outline btn-sm" onclick="fmtLine('m-obs','→ ')">→ Clave</button>
-      <button type="button" class="btn btn-outline btn-sm" onclick="fmtLine('m-obs','✓ ')">✓ Logro</button>
-    </div>
-    <textarea id="m-obs" placeholder="Compromisos, recomendaciones, próximos pasos…" style="min-height:100px;font-family:Georgia,serif">${id?decodeURIComponent(obs):''}</textarea>
-    <label class="lbl">Puntuación de avance</label>
-    <div style="display:flex;gap:8px;margin-bottom:16px" id="stars-wrap">
-      ${[1,2,3,4,5].map(n=>`<div onclick="selPun(${n})" id="star-${n}" style="font-size:32px;cursor:pointer;color:${n<=_pun?'#B8732A':'#ddd'};transition:color .15s;user-select:none">★</div>`).join("")}
-    </div>
-    <label class="lbl">Semáforo de avance</label>
-    <div style="display:flex;gap:10px;margin-bottom:18px">
-      ${["verde","amarillo","rojo"].map(v=>{const s=si(v);return`<div class="sem-opt" id="so-${v}" style="${v===sem?"background:"+s.bg+";border-color:"+s.dot:""}" onclick="selSem('${v}')"><div style="width:14px;height:14px;border-radius:50%;background:${s.dot};margin:0 auto 4px"></div><div style="font-size:12px;font-weight:600;color:${s.color}">${s.label}</div></div>`;}).join("")}
-    </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end">
-      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveSess('${cat}','${eid}','${pid}','${id}')">Guardar sesión</button>
-    </div>`);
-}
 }
 function selSem(v){
   _sem=v;
@@ -390,18 +343,47 @@ function selSem(v){
     else{el.style.background="#f8f8f8";el.style.borderColor="#ddd";}
   });
 }
-async function toggleRec(){
-  const btn=document.getElementById("rec-btn");
-  if(!_mr){
-    try{
-      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-      const chunks=[];_mr=new MediaRecorder(stream);
-      _mr.ondataavailable=e=>chunks.push(e.data);
-      _mr.onstop=()=>{stream.getTracks().forEach(t=>t.stop());_mr=null;};
-      _mr.start();btn.textContent="⏹️ Detener";btn.className="btn btn-danger btn-sm";
-    }catch{toast("No se pudo acceder al micrófono","danger");}
-  }else{_mr.stop();btn.textContent="🎙️ Grabar audio";btn.className="btn btn-outline btn-sm";}
+
+function openSessModal(cat,eid,pid,id,date,notes,sem,obs,pun){
+  _sem=sem||"verde";_pun=parseInt(pun)||0;
+  const d=id&&date?decodeURIComponent(date):"";
+  const n=id&&notes?decodeURIComponent(notes):"";
+  const o=id&&obs?decodeURIComponent(obs):"";
+  showModal(`<h3 style="color:var(--brand);margin-bottom:16px">${id?"Editar":"Nueva"} sesión</h3>
+    <label class="lbl">Fecha *</label>
+    <input id="m-date" type="date" value="${d}">
+    <label class="lbl">Notas de la sesión * <span style="color:#bbb;font-size:11px">— selecciona texto y aplica formato</span></label>
+    <div class="fmt-bar">
+      <button type="button" class="fmt-btn" onclick="fmt('m-notes','bold')"><b>N</b> Negrilla</button>
+      <button type="button" class="fmt-btn" onclick="fmt('m-notes','italic')"><i>K</i> Cursiva</button>
+      <button type="button" class="fmt-btn" onclick="fmtLine('m-notes','• ')">• Lista</button>
+      <button type="button" class="fmt-btn" onclick="fmtLine('m-notes','→ ')">→ Punto clave</button>
+      <button type="button" class="fmt-btn" onclick="fmtLine('m-notes','✓ ')">✓ Logro</button>
+    </div>
+    <textarea id="m-notes" style="min-height:160px" placeholder="Escribe aquí todo lo trabajado en la sesión…">${n}</textarea>
+    <label class="lbl">Observaciones y próximos pasos</label>
+    <div class="fmt-bar">
+      <button type="button" class="fmt-btn" onclick="fmt('m-obs','bold')"><b>N</b> Negrilla</button>
+      <button type="button" class="fmt-btn" onclick="fmt('m-obs','italic')"><i>K</i> Cursiva</button>
+      <button type="button" class="fmt-btn" onclick="fmtLine('m-obs','• ')">• Lista</button>
+      <button type="button" class="fmt-btn" onclick="fmtLine('m-obs','→ ')">→ Punto clave</button>
+      <button type="button" class="fmt-btn" onclick="fmtLine('m-obs','✓ ')">✓ Logro</button>
+    </div>
+    <textarea id="m-obs" style="min-height:100px" placeholder="Compromisos, recomendaciones, próximos pasos…">${o}</textarea>
+    <label class="lbl">Puntuación de avance</label>
+    <div style="display:flex;gap:10px;margin-bottom:16px">
+      ${[1,2,3,4,5].map(n=>`<div onclick="selPun(${n})" id="star-${n}" style="font-size:34px;cursor:pointer;color:${n<=_pun?"#B8732A":"#ddd"};user-select:none">★</div>`).join("")}
+    </div>
+    <label class="lbl">Semáforo de avance</label>
+    <div style="display:flex;gap:10px;margin-bottom:18px">
+      ${["verde","amarillo","rojo"].map(v=>{const s=si(v);return`<div class="sem-opt" id="so-${v}" style="${v===_sem?"background:"+s.bg+";border-color:"+s.dot:""}" onclick="selSem('${v}')"><div style="width:14px;height:14px;border-radius:50%;background:${s.dot};margin:0 auto 4px"></div><div style="font-size:12px;font-weight:600;color:${s.color}">${s.label}</div></div>`;}).join("")}
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveSess('${cat}','${eid}','${pid}','${id||""}')">Guardar sesión</button>
+    </div>`);
 }
+
 async function saveSess(cat,eid,pid,id){
   const date=document.getElementById("m-date").value;
   const notes=document.getElementById("m-notes").value.trim();
@@ -417,257 +399,106 @@ async function delSess(cat,eid,pid,id){
   await sRef(cat,eid,pid).doc(id).delete();toast("Eliminado","danger");render();
 }
 
-// GENERATE REPORT
-async function genReport(cat,eid,pid,sid,btn){
-  btn.textContent="⏳ Generando…";btn.disabled=true;
-  const s=(await sRef(cat,eid,pid).doc(sid).get()).data();
-  try{
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,{
-      method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({contents:[{parts:[{text:"Eres experta en psicología clínica y organizacional. Genera un informe profesional en español. Sin asteriscos, sin almohadillas (#), sin Markdown. Usa MAYÚSCULAS para los títulos de sección y párrafos para el contenido.\n\nSecciones requeridas:\nRESUMEN EJECUTIVO DE LA SESIÓN\nPUNTOS CLAVE TRABAJADOS\nAPRENDIZAJES E INSIGHTS\nESTADO EMOCIONAL Y AVANCE OBSERVADO\nACCIONES Y COMPROMISOS ACORDADOS\nOBJETIVOS PARA LA PRÓXIMA SESIÓN\nRECOMENDACIONES PROFESIONALES\n\nNotas de la sesión:\n"+s.notes+"\n\nEstado: "+si(s.semaforo).label+"\nFecha: "+s.date+"\n\nRedacta en párrafos, tono clínico-profesional, sin símbolos especiales ni formato Markdown."}]}]})
-    });
-    if(!res.ok){const err=await res.text();console.error("Gemini error:",err);throw new Error(err);}
-    const d=await res.json();
-    const report=d.candidates?.[0]?.content?.parts?.[0]?.text||"No se pudo generar el informe.";
-    await sRef(cat,eid,pid).doc(sid).update({report});
-    toast("Informe generado ✨");render();
-  }catch(e){console.error(e);toast("Error: "+e.message,"danger");btn.textContent="✨ Generar informe";btn.disabled=false;}
-}
-
-// PRINT
 function doPrint(s){
   const inf=si(s.semaforo);
   const score=s.puntuacion||0;
   const stars="★".repeat(score)+"☆".repeat(5-score);
   const pct=score*20;
-  const semColor=inf.bg==='#d4edda'?'#28a745':inf.bg==='#fff3cd'?'#e6a817':'#dc3545';
-  const semBg=inf.bg==='#d4edda'?'#1a5c2e':inf.bg==='#fff3cd'?'#7a4d00':'#7a1a1a';
-  const notesHtml=renderText(s.notes||"");
-  const obsHtml=renderText(s.report||"");
+  const semColor=inf.bg==="#d4edda"?"#28a745":inf.bg==="#fff3cd"?"#e6a817":"#dc3545";
+  const semBg=inf.bg==="#d4edda"?"#0d3320":inf.bg==="#fff3cd"?"#3d2800":"#3d0d0d";
+  const semIcon=inf.bg==="#d4edda"?"✅":inf.bg==="#fff3cd"?"⚡":"🔴";
+  function rt(text){
+    if(!text)return"";
+    return text
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/\*\*(.*?)\*\*/g,"<strong style='color:#E8A96A'>$1</strong>")
+      .replace(/_(.*?)_/g,"<em style='color:#D4943A'>$1</em>")
+      .replace(/^(→|•|✓) (.+)$/gm,'<div style="display:flex;gap:10px;margin:5px 0;align-items:flex-start"><span style="color:#B8732A;font-weight:700;flex-shrink:0;font-size:15px">$1</span><span>$2</span></div>')
+      .replace(/\n/g,"<br>");
+  }
   const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Informe - ${s.pn||""}</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:Georgia,serif;background:#0f0a06;min-height:100vh;padding:32px 20px}
+    body{font-family:Georgia,serif;background:#0f0804;min-height:100vh;padding:32px 20px}
     .page{max-width:880px;margin:0 auto}
-    .hero{background:linear-gradient(135deg,#1a0d05 0%,#2d1608 40%,#6b2e08 80%,#B8732A 100%);border-radius:20px;padding:36px 40px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;border:1px solid #5a2d0a}
-    .brand{color:#E8A96A;font-size:32px;font-style:italic;letter-spacing:1px;margin-bottom:3px}
+    .hero{background:linear-gradient(135deg,#1a0d05 0%,#2d1608 40%,#6b2e08 75%,#B8732A 100%);border-radius:20px;padding:36px 40px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;border:1px solid #6b2e08}
+    .brand{color:#E8A96A;font-size:32px;font-style:italic;letter-spacing:1px;margin-bottom:2px}
     .psico{color:#D4943A;font-size:10px;letter-spacing:6px;text-transform:uppercase}
-    .divider-hero{width:60px;height:2px;background:linear-gradient(90deg,#B8732A,transparent);margin:18px 0 14px}
-    .report-type{color:rgba(255,255,255,.45);font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
-    .person-name{font-size:32px;font-weight:700;color:#fff;letter-spacing:.5px;margin-bottom:6px}
-    .meta-sub{color:rgba(255,255,255,.55);font-size:13px}
-    .sem-pill{background:${semBg};border:2px solid ${semColor};border-radius:16px;padding:18px 24px;text-align:center;min-width:120px}
-    .sem-icon{font-size:36px;margin-bottom:6px}
+    .div-line{width:50px;height:2px;background:linear-gradient(90deg,#E8A96A,transparent);margin:16px 0 12px}
+    .rtype{color:rgba(255,255,255,.4);font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
+    .pname{font-size:30px;font-weight:700;color:#fff;margin-bottom:6px}
+    .msub{color:rgba(255,255,255,.5);font-size:13px}
+    .sem-pill{background:${semBg};border:2px solid ${semColor};border-radius:16px;padding:20px 28px;text-align:center;min-width:130px}
+    .sem-icon{font-size:38px;margin-bottom:8px}
     .sem-lbl{font-size:15px;font-weight:700;color:${semColor}}
-    .sem-sub{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:2px;text-transform:uppercase;margin-top:3px}
+    .sem-sub{font-size:9px;color:rgba(255,255,255,.35);letter-spacing:2px;text-transform:uppercase;margin-top:3px}
     .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
-    .card-item{border-radius:14px;padding:20px 18px;text-align:center;border:1px solid}
-    .card-date{background:#1a0d05;border-color:#B8732A}
-    .card-score{background:#120a03;border-color:#8A5218}
-    .card-empresa{background:#160c04;border-color:#D4943A}
-    .card-val{font-size:17px;font-weight:700;color:#E8A96A;margin-bottom:5px}
-    .card-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4)}
-    .stars-txt{font-size:22px;color:#B8732A;letter-spacing:3px;margin-bottom:5px}
-    .section{background:#1a0d05;border:1px solid #3d1f08;border-radius:16px;padding:24px 28px;margin-bottom:16px}
-    .sec-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #3d1f08}
-    .sec-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#B8732A,#6b2e08);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
-    .sec-title{font-size:12px;font-weight:700;color:#D4943A;letter-spacing:2px;text-transform:uppercase}
-    .prog-row{margin-bottom:16px}
-    .prog-top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:7px}
-    .prog-top span:first-child{color:rgba(255,255,255,.7);font-weight:600}
-    .prog-top span:last-child{color:#E8A96A;font-weight:700}
-    .prog-bg{background:#2d1608;border-radius:20px;height:10px;overflow:hidden}
-    .prog-fill{height:100%;border-radius:20px}
-    .notes-box{background:#120a03;border-left:4px solid #B8732A;border-radius:0 10px 10px 0;padding:18px 22px;font-size:14px;color:rgba(255,255,255,.8);line-height:1.9}
-    .notes-box strong{color:#E8A96A;font-weight:700}
-    .notes-box em{color:#D4943A;font-style:italic}
-    .obs-box{font-size:14px;color:rgba(255,255,255,.75);line-height:1.9}
-    .obs-box strong{color:#E8A96A;font-weight:700}
-    .obs-box em{color:#D4943A;font-style:italic}
-    .footer{background:linear-gradient(135deg,#1a0d05,#2d1608);border-radius:16px;padding:22px;text-align:center;margin-top:8px;border:1px solid #3d1f08}
-    .footer-brand{color:#E8A96A;font-size:20px;font-style:italic;margin-bottom:4px}
-    .footer-sub{color:rgba(255,255,255,.3);font-size:10px;letter-spacing:3px;text-transform:uppercase}
+    .ci{border-radius:14px;padding:20px;text-align:center;border:1px solid}
+    .ci.date{background:#1a0d05;border-color:#B8732A}
+    .ci.score{background:#120a03;border-color:#8A5218}
+    .ci.emp{background:#160c04;border-color:#D4943A}
+    .cv{font-size:17px;font-weight:700;color:#E8A96A;margin-bottom:5px}
+    .cl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35)}
+    .stars{font-size:22px;color:#B8732A;letter-spacing:3px;margin-bottom:5px}
+    .sec{background:#1a0d05;border:1px solid #3d1f08;border-radius:16px;padding:24px 28px;margin-bottom:16px}
+    .sh{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #3d1f08}
+    .si{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#B8732A,#6b2e08);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+    .st{font-size:12px;font-weight:700;color:#D4943A;letter-spacing:2px;text-transform:uppercase}
+    .pr{margin-bottom:14px}
+    .pt{display:flex;justify-content:space-between;font-size:13px;margin-bottom:7px}
+    .pt span:first-child{color:rgba(255,255,255,.65);font-weight:600}
+    .pt span:last-child{color:#E8A96A;font-weight:700}
+    .pb{background:#2d1608;border-radius:20px;height:10px;overflow:hidden}
+    .pf{height:100%;border-radius:20px;background:linear-gradient(90deg,#B8732A,#E8A96A)}
+    .nb{background:#120a03;border-left:4px solid #B8732A;border-radius:0 10px 10px 0;padding:18px 22px;font-size:14px;color:rgba(255,255,255,.8);line-height:1.9}
+    .ob{font-size:14px;color:rgba(255,255,255,.75);line-height:1.9}
+    .ft{background:linear-gradient(135deg,#1a0d05,#2d1608);border-radius:16px;padding:22px;text-align:center;margin-top:8px;border:1px solid #3d1f08}
+    .fb{color:#E8A96A;font-size:20px;font-style:italic;margin-bottom:4px}
+    .fs{color:rgba(255,255,255,.25);font-size:10px;letter-spacing:3px;text-transform:uppercase}
   </style></head><body>
   <div class="page">
     <div class="hero">
       <div>
         <div class="brand">Mishell Fontalvo</div>
         <div class="psico">Psicóloga</div>
-        <div class="divider-hero"></div>
-        <div class="report-type">Informe de Sesión</div>
-        <div class="person-name">${s.pn||""}</div>
-        <div class="meta-sub">${s.en||""} &nbsp;·&nbsp; ${s.date}</div>
+        <div class="div-line"></div>
+        <div class="rtype">Informe de Sesión</div>
+        <div class="pname">${s.pn||""}</div>
+        <div class="msub">${s.en||""} &nbsp;·&nbsp; ${s.date}</div>
       </div>
       <div class="sem-pill">
-        <div class="sem-icon">${inf.bg==='#d4edda'?'✅':inf.bg==='#fff3cd'?'⚡':'🔴'}</div>
+        <div class="sem-icon">${semIcon}</div>
         <div class="sem-lbl">${inf.label}</div>
-        <div class="sem-sub">Estado</div>
+        <div class="sem-sub">Estado de sesión</div>
       </div>
     </div>
-
     <div class="cards">
-      <div class="card-item card-date">
-        <div class="card-val">${s.date}</div>
-        <div class="card-lbl">Fecha de sesión</div>
-      </div>
-      <div class="card-item card-score">
-        <div class="stars-txt">${stars}</div>
-        <div class="card-lbl">Puntuación ${score} / 5</div>
-      </div>
-      <div class="card-item card-empresa">
-        <div class="card-val" style="font-size:14px">${s.en||"—"}</div>
-        <div class="card-lbl">Empresa / Org.</div>
-      </div>
+      <div class="ci date"><div class="cv">${s.date}</div><div class="cl">Fecha de sesión</div></div>
+      <div class="ci score"><div class="stars">${stars}</div><div class="cl">Puntuación ${score}/5</div></div>
+      <div class="ci emp"><div class="cv" style="font-size:14px">${s.en||"—"}</div><div class="cl">Empresa / Org.</div></div>
     </div>
-
-    <div class="section">
-      <div class="sec-head"><div class="sec-icon">📊</div><div class="sec-title">Indicadores de Avance</div></div>
-      <div class="prog-row">
-        <div class="prog-top"><span>Avance general</span><span>${pct}%</span></div>
-        <div class="prog-bg"><div class="prog-fill" style="width:${pct}%;background:linear-gradient(90deg,#B8732A,#E8A96A)"></div></div>
-      </div>
-      <div class="prog-row">
-        <div class="prog-top"><span>Estado emocional</span><span style="color:${semColor}">${inf.label}</span></div>
-        <div class="prog-bg"><div class="prog-fill" style="width:${inf.bg==='#d4edda'?'100':inf.bg==='#fff3cd'?'60':'30'}%;background:${semColor}"></div></div>
-      </div>
-      <div class="prog-row" style="margin-bottom:0">
-        <div class="prog-top"><span>Compromiso observado</span><span>${score>=4?'Alto':score>=3?'Medio':'En desarrollo'}</span></div>
-        <div class="prog-bg"><div class="prog-fill" style="width:${score>=4?'90':score>=3?'60':'35'}%;background:linear-gradient(90deg,#D4943A,#E8A96A)"></div></div>
-      </div>
+    <div class="sec">
+      <div class="sh"><div class="si">📊</div><div class="st">Indicadores de Avance</div></div>
+      <div class="pr"><div class="pt"><span>Avance general</span><span>${pct}%</span></div><div class="pb"><div class="pf" style="width:${pct}%"></div></div></div>
+      <div class="pr"><div class="pt"><span>Estado emocional</span><span style="color:${semColor}">${inf.label}</span></div><div class="pb"><div class="pf" style="width:${inf.bg==="#d4edda"?"100":inf.bg==="#fff3cd"?"60":"30"}%;background:${semColor}"></div></div></div>
+      <div class="pr" style="margin-bottom:0"><div class="pt"><span>Compromiso observado</span><span>${score>=4?"Alto":score>=3?"Medio":"En desarrollo"}</span></div><div class="pb"><div class="pf" style="width:${score>=4?"90":score>=3?"60":"35"}%"></div></div></div>
     </div>
-
-    <div class="section">
-      <div class="sec-head"><div class="sec-icon">📝</div><div class="sec-title">Notas de la Sesión</div></div>
-      <div class="notes-box">${notesHtml}</div>
+    <div class="sec">
+      <div class="sh"><div class="si">📝</div><div class="st">Notas de la Sesión</div></div>
+      <div class="nb">${rt(s.notes)}</div>
     </div>
-
-    ${obsHtml?`<div class="section"><div class="sec-head"><div class="sec-icon">💡</div><div class="sec-title">Observaciones y Próximos Pasos</div></div><div class="obs-box">${obsHtml}</div></div>`:""}
-
-    <div class="footer">
-      <div class="footer-brand">Mishell Fontalvo</div>
-      <div class="footer-sub">Psicóloga · Sistema de gestión de sesiones</div>
-    </div>
-  </div>
-  </body></html>`;
+    ${s.report?`<div class="sec"><div class="sh"><div class="si">💡</div><div class="st">Observaciones y Próximos Pasos</div></div><div class="ob">${rt(s.report)}</div></div>`:""}
+    <div class="ft"><div class="fb">Mishell Fontalvo</div><div class="fs">Psicóloga · Sistema de gestión de sesiones</div></div>
+  </div></body></html>`;
   const blob=new Blob([html],{type:"text/html;charset=utf-8"});
   const url=URL.createObjectURL(blob);
   const a=document.createElement("a");
-  a.href=url;a.download=`Informe-${(s.pn||"sesion").replace(/\s+/g,"-")}-${s.date}.html`;
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  toast("Informe descargado ✨");
-}
-  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Informe - ${s.pn||""}</title>
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:Georgia,serif;background:#1a0f0a;color:#2c2c2c;line-height:1.7}
-    .page{max-width:880px;margin:0 auto;padding:36px 28px}
-    .hero{background:linear-gradient(135deg,#1a0f0a 0%,#3d1f08 50%,#B8732A 100%);border-radius:18px;padding:32px 36px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;color:#fff}
-    .hero-left .brand{color:#E8A96A;font-size:30px;font-style:italic;letter-spacing:1px}
-    .hero-left .psico{color:#D4943A;font-size:10px;letter-spacing:5px;text-transform:uppercase;margin-top:2px}
-    .hero-left .report-type{color:rgba(255,255,255,.5);font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-top:22px;border-top:1px solid rgba(255,255,255,.15);padding-top:12px}
-    .hero-left .person-name{font-size:30px;font-weight:700;color:#fff;margin-top:6px}
-    .hero-left .meta-sub{color:rgba(255,255,255,.6);font-size:13px;margin-top:5px}
-    .hero-right{text-align:center;padding-left:24px}
-    .sem-box{border-radius:14px;padding:16px 24px;text-align:center;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.25)}
-    .sem-symbol{font-size:36px;font-weight:700;color:#fff}
-    .sem-label{font-size:14px;font-weight:700;color:#fff;margin-top:6px}
-    .sem-sub{font-size:10px;color:rgba(255,255,255,.6);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
-    .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:22px}
-    .stat-card{border-radius:14px;padding:20px 16px;text-align:center;color:#fff}
-    .stat-card.date{background:linear-gradient(135deg,#B8732A,#D4943A)}
-    .stat-card.score{background:linear-gradient(135deg,#2C1810,#6B3410)}
-    .stat-card.empresa{background:linear-gradient(135deg,#4a3728,#7a5a42)}
-    .stat-val{font-size:18px;font-weight:700;color:#fff}
-    .stat-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.7);margin-top:5px}
-    .stars{font-size:22px;letter-spacing:2px;color:#E8A96A}
-    .section{background:#fff;border-radius:14px;padding:22px 26px;margin-bottom:18px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
-    .section-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #FDF0E0}
-    .section-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#B8732A,#D4943A);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-    .section-title{font-size:13px;font-weight:700;color:#B8732A;letter-spacing:1.5px;text-transform:uppercase}
-    .prog-row{margin-bottom:14px}
-    .prog-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
-    .prog-label span:first-child{color:#555;font-weight:600}
-    .prog-label span:last-child{color:#B8732A;font-weight:700}
-    .prog-bg{background:#F0DFC0;border-radius:20px;height:12px}
-    .prog-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#B8732A,#E8A96A)}
-    .prog-fill-sem{height:100%;border-radius:20px;background:${semColor}}
-    .notes-body{font-size:14px;color:#444;white-space:pre-wrap;line-height:1.9;border-left:4px solid #B8732A;padding:16px 20px;background:#FDF6ED;border-radius:0 10px 10px 0}
-    .obs-body{font-size:14px;color:#444;white-space:pre-wrap;line-height:1.9}
-    .footer{text-align:center;padding:24px 0 4px;margin-top:8px}
-    .footer-inner{background:linear-gradient(135deg,#1a0f0a,#3d1f08);border-radius:12px;padding:20px;color:#fff}
-    .footer-brand{color:#E8A96A;font-size:20px;font-style:italic}
-    .footer-sub{color:rgba(255,255,255,.5);font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-top:4px}
-  </style></head><body>
-  <div class="page">
-    <div class="hero">
-      <div class="hero-left">
-        <div class="brand">Mishell Fontalvo</div>
-        <div class="psico">Psicóloga</div>
-        <div class="report-type">Informe de Sesión</div>
-        <div class="person-name">${s.pn||""}</div>
-        <div class="meta-sub">${s.en||""} · ${s.date}</div>
-      </div>
-      <div class="hero-right">
-        <div class="sem-box">
-          <div class="sem-symbol">${inf.bg==='#d4edda'?'✓':inf.bg==='#fff3cd'?'~':'!'}</div>
-          <div class="sem-label">${inf.label}</div>
-          <div class="sem-sub">Estado</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="stat-grid">
-      <div class="stat-card date">
-        <div class="stat-val">${s.date}</div>
-        <div class="stat-lbl">Fecha de sesión</div>
-      </div>
-      <div class="stat-card score">
-        <div class="stars">${stars}</div>
-        <div class="stat-lbl">Puntuación ${score}/5</div>
-      </div>
-      <div class="stat-card empresa">
-        <div class="stat-val" style="font-size:16px">${s.en||"—"}</div>
-        <div class="stat-lbl">Empresa / Org.</div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-head"><span class="section-icon">📊</span><span class="section-title">Indicadores de Avance</span></div>
-      <div class="prog-row">
-        <div class="prog-label"><span>Avance general</span><span>${pct}%</span></div>
-        <div class="prog-bg"><div class="prog-fill" style="width:${pct}%"></div></div>
-      </div>
-      <div class="prog-row">
-        <div class="prog-label"><span>Estado emocional</span><span>${inf.label}</span></div>
-        <div class="prog-bg"><div class="prog-fill-sem" style="width:${inf.bg==='#d4edda'?'100':inf.bg==='#fff3cd'?'60':'30'}%"></div></div>
-      </div>
-      <div class="prog-row">
-        <div class="prog-label"><span>Compromiso observado</span><span>${score>=4?'Alto':score>=3?'Medio':'En desarrollo'}</span></div>
-        <div class="prog-bg"><div class="prog-fill" style="width:${score>=4?'90':score>=3?'60':'35'}%"></div></div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-head"><span class="section-icon">📝</span><span class="section-title">Notas de la Sesión</span></div>
-      <div class="notes-body">${s.notes}</div>
-    </div>
-
-    ${s.report?`<div class="section"><div class="section-head"><span class="section-icon">💡</span><span class="section-title">Observaciones y Próximos Pasos</span></div><div class="obs-body">${s.report}</div></div>`:""}
-
-    <div class="footer"><div class="footer-inner"><div class="footer-brand">Mishell Fontalvo</div><div class="footer-sub">Psicóloga · Sistema de gestión de sesiones</div></div></div>
-  </div>
-  </body></html>`;
-  const blob=new Blob([html],{type:"text/html;charset=utf-8"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url;a.download=`Informe-${(s.pn||"sesion").replace(/\s+/g,"-")}-${s.date}.html`;
+  a.href=url;a.download="Informe-"+(s.pn||"sesion").replace(/\s+/g,"-")+"-"+s.date+".html";
   document.body.appendChild(a);a.click();document.body.removeChild(a);
   URL.revokeObjectURL(url);
   toast("Informe descargado ✨");
 }
 
-// SEARCH
 async function doSearch(q){
   const drop=document.getElementById("s-drop");
   if(q.trim().length<2){drop.classList.remove("show");return;}
