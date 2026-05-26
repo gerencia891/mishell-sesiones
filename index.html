@@ -402,44 +402,44 @@ function doPrint(s){
   const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Informe - ${s.pn||""}</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:Georgia,serif;background:#fff;color:#2c2c2c;line-height:1.7}
-    .page{max-width:860px;margin:0 auto;padding:36px 32px}
-    .hero{border-left:8px solid #B8732A;border-radius:12px;padding:28px 32px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;background:#FDF6ED;border-top:1px solid #E8C99A;border-right:1px solid #E8C99A;border-bottom:1px solid #E8C99A}
-    .hero-left .brand{color:#B8732A;font-size:32px;font-style:italic;letter-spacing:1px}
-    .hero-left .psico{color:#8A5218;font-size:10px;letter-spacing:5px;text-transform:uppercase;margin-top:2px}
-    .hero-left .report-type{color:#B8732A;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-top:20px;border-top:2px solid #E8C99A;padding-top:10px}
-    .hero-left .person-name{font-size:28px;font-weight:700;color:#2c2c2c;margin-top:6px}
-    .hero-left .meta-sub{color:#8A5218;font-size:13px;margin-top:4px}
-    .hero-right{text-align:center;padding-left:28px}
-    .sem-box{border:3px solid ${semColor};border-radius:14px;padding:14px 22px;text-align:center;background:${inf.bg}}
-    .sem-symbol{font-size:32px;color:${semColor};font-weight:700}
-    .sem-label{font-size:14px;font-weight:700;color:${inf.color};margin-top:4px}
-    .sem-sub{font-size:10px;color:${inf.color};opacity:.7;margin-top:2px;letter-spacing:1px;text-transform:uppercase}
-    .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
-    .stat-card{border-radius:12px;padding:18px 16px;text-align:center}
-    .stat-card.date{background:#FDF0E0;border-left:5px solid #B8732A;border-top:1px solid #E8C99A;border-right:1px solid #E8C99A;border-bottom:1px solid #E8C99A}
-    .stat-card.score{background:#F5ECD9;border-left:5px solid #8A5218;border-top:1px solid #E8C99A;border-right:1px solid #E8C99A;border-bottom:1px solid #E8C99A}
-    .stat-card.empresa{background:#FFF8F0;border-left:5px solid #D4943A;border-top:1px solid #E8C99A;border-right:1px solid #E8C99A;border-bottom:1px solid #E8C99A}
-    .stat-val{font-size:18px;font-weight:700;color:#B8732A}
-    .stat-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#8A5218;margin-top:5px}
-    .stars{font-size:22px;letter-spacing:2px;color:#B8732A}
-    .section{background:#fff;border:1px solid #F0DFC0;border-radius:12px;padding:20px 24px;margin-bottom:16px}
-    .section-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #F0DFC0}
-    .section-icon{font-size:18px}
-    .section-title{font-size:13px;font-weight:700;color:#B8732A;letter-spacing:1px;text-transform:uppercase}
-    .prog-row{margin-bottom:12px}
-    .prog-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+    body{font-family:Georgia,serif;background:#1a0f0a;color:#2c2c2c;line-height:1.7}
+    .page{max-width:880px;margin:0 auto;padding:36px 28px}
+    .hero{background:linear-gradient(135deg,#1a0f0a 0%,#3d1f08 50%,#B8732A 100%);border-radius:18px;padding:32px 36px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;color:#fff}
+    .hero-left .brand{color:#E8A96A;font-size:30px;font-style:italic;letter-spacing:1px}
+    .hero-left .psico{color:#D4943A;font-size:10px;letter-spacing:5px;text-transform:uppercase;margin-top:2px}
+    .hero-left .report-type{color:rgba(255,255,255,.5);font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-top:22px;border-top:1px solid rgba(255,255,255,.15);padding-top:12px}
+    .hero-left .person-name{font-size:30px;font-weight:700;color:#fff;margin-top:6px}
+    .hero-left .meta-sub{color:rgba(255,255,255,.6);font-size:13px;margin-top:5px}
+    .hero-right{text-align:center;padding-left:24px}
+    .sem-box{border-radius:14px;padding:16px 24px;text-align:center;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.25)}
+    .sem-symbol{font-size:36px;font-weight:700;color:#fff}
+    .sem-label{font-size:14px;font-weight:700;color:#fff;margin-top:6px}
+    .sem-sub{font-size:10px;color:rgba(255,255,255,.6);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
+    .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:22px}
+    .stat-card{border-radius:14px;padding:20px 16px;text-align:center;color:#fff}
+    .stat-card.date{background:linear-gradient(135deg,#B8732A,#D4943A)}
+    .stat-card.score{background:linear-gradient(135deg,#2C1810,#6B3410)}
+    .stat-card.empresa{background:linear-gradient(135deg,#4a3728,#7a5a42)}
+    .stat-val{font-size:18px;font-weight:700;color:#fff}
+    .stat-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.7);margin-top:5px}
+    .stars{font-size:22px;letter-spacing:2px;color:#E8A96A}
+    .section{background:#fff;border-radius:14px;padding:22px 26px;margin-bottom:18px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+    .section-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #FDF0E0}
+    .section-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#B8732A,#D4943A);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+    .section-title{font-size:13px;font-weight:700;color:#B8732A;letter-spacing:1.5px;text-transform:uppercase}
+    .prog-row{margin-bottom:14px}
+    .prog-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
     .prog-label span:first-child{color:#555;font-weight:600}
     .prog-label span:last-child{color:#B8732A;font-weight:700}
-    .prog-bg{background:#F0DFC0;border-radius:20px;height:10px}
-    .prog-fill{height:100%;border-radius:20px;background:#B8732A}
+    .prog-bg{background:#F0DFC0;border-radius:20px;height:12px}
+    .prog-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#B8732A,#E8A96A)}
     .prog-fill-sem{height:100%;border-radius:20px;background:${semColor}}
-    .notes-body{font-size:14px;color:#444;white-space:pre-wrap;line-height:1.9;border-left:4px solid #B8732A;padding:14px 18px;background:#FDFAF5;border-radius:0 8px 8px 0}
+    .notes-body{font-size:14px;color:#444;white-space:pre-wrap;line-height:1.9;border-left:4px solid #B8732A;padding:16px 20px;background:#FDF6ED;border-radius:0 10px 10px 0}
     .obs-body{font-size:14px;color:#444;white-space:pre-wrap;line-height:1.9}
-    .footer{text-align:center;padding:20px 0 4px;border-top:2px solid #F0DFC0;margin-top:8px}
-    .footer-brand{color:#B8732A;font-size:18px;font-style:italic}
-    .footer-sub{color:#bbb;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-top:2px}
-    @media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
+    .footer{text-align:center;padding:24px 0 4px;margin-top:8px}
+    .footer-inner{background:linear-gradient(135deg,#1a0f0a,#3d1f08);border-radius:12px;padding:20px;color:#fff}
+    .footer-brand{color:#E8A96A;font-size:20px;font-style:italic}
+    .footer-sub{color:rgba(255,255,255,.5);font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-top:4px}
   </style></head><body>
   <div class="page">
     <div class="hero">
@@ -497,13 +497,16 @@ function doPrint(s){
 
     ${s.report?`<div class="section"><div class="section-head"><span class="section-icon">💡</span><span class="section-title">Observaciones y Próximos Pasos</span></div><div class="obs-body">${s.report}</div></div>`:""}
 
-    <div class="footer">
-      <div class="footer-brand">Mishell Fontalvo</div>
-      <div class="footer-sub">Psicóloga · Sistema de gestión de sesiones</div>
-    </div>
+    <div class="footer"><div class="footer-inner"><div class="footer-brand">Mishell Fontalvo</div><div class="footer-sub">Psicóloga · Sistema de gestión de sesiones</div></div></div>
   </div>
   </body></html>`;
-  const w=window.open("","_blank");w.document.write(html);w.document.close();setTimeout(()=>w.print(),600);
+  const blob=new Blob([html],{type:"text/html;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download=`Informe-${(s.pn||"sesion").replace(/\s+/g,"-")}-${s.date}.html`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast("Informe descargado ✨");
 }
 
 // SEARCH
